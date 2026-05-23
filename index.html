@@ -86,35 +86,46 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
 <div id="app">
 <div id="toast" class="toast"></div>
 
+<!-- STAFF POPUP -->
+<div id="staff-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:500;align-items:flex-end;justify-content:center;">
+  <div style="background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-width:420px;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom));">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:16px;font-weight:600;">Staff sign in</div>
+      <button onclick="closeStaffMenu()" style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--muted);">✕</button>
+    </div>
+    <button class="role-btn" onclick="closeStaffMenu();show('s-rescue-login')">
+      <div class="role-icon" style="background:#ede9fe;">🚤</div>
+      <div><div class="role-title">Rescue boat</div><div class="role-sub">Respond to SOS alerts</div></div>
+    </button>
+    <button class="role-btn" onclick="closeStaffMenu();show('s-coord-login')">
+      <div class="role-icon" style="background:var(--blue-light);">🗺</div>
+      <div><div class="role-title">Coordinator</div><div class="role-sub">Monitor all boats on the map</div></div>
+    </button>
+    <button class="role-btn" style="border-style:dashed;" onclick="closeStaffMenu();show('s-admin-login')">
+      <div class="role-icon" style="background:#f8f8f6;">⚙️</div>
+      <div><div class="role-title">Admin</div><div class="role-sub">Manage settings &amp; users</div></div>
+    </button>
+  </div>
+</div>
+
 <!-- WELCOME -->
 <div class="screen active" id="s-welcome">
   <div class="welcome-header">
     <h1>🛶 River Tracker</h1>
-    <p>Safety &amp; location system</p>
+    <p id="active-event-name">Safety &amp; location system</p>
   </div>
   <div class="content">
-    <div class="sec" style="margin-top:4px;">Select event</div>
-    <div style="margin-bottom:18px;" id="event-chips">
-      <span class="chip sel" onclick="selEvent(this,'waikato')">🏞 Waikato River</span>
-      <span class="chip" onclick="selEvent(this,'beachhaven')">🌊 Beach Haven Run</span>
+    <div class="card card-blue" id="active-event-card" style="margin-bottom:20px;">
+      <div style="font-size:12px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Active event</div>
+      <div style="font-size:18px;font-weight:600;color:var(--text);" id="active-event-label">Loading…</div>
     </div>
-    <div class="sec">Sign in as</div>
-    <button class="role-btn" onclick="show('s-p-select')">
-      <div class="role-icon" style="background:#eaf3de;">⛵</div>
-      <div><div class="role-title">Participant</div><div class="role-sub">Share your location with coordinators</div></div>
+    <button class="role-btn btn-primary" onclick="show('s-p-select')" style="background:var(--blue);border-color:var(--blue);margin-bottom:0;">
+      <div class="role-icon" style="background:rgba(255,255,255,.2);">⛵</div>
+      <div><div class="role-title" style="color:#fff;">Join as participant</div><div class="role-sub" style="color:rgba(255,255,255,.75);">Share your location with coordinators</div></div>
     </button>
-    <button class="role-btn" onclick="show('s-rescue-login')">
-      <div class="role-icon" style="background:#ede9fe;">🚤</div>
-      <div><div class="role-title">Rescue boat</div><div class="role-sub">Respond to SOS alerts</div></div>
-    </button>
-    <button class="role-btn" onclick="show('s-coord-login')">
-      <div class="role-icon" style="background:var(--blue-light);">🗺</div>
-      <div><div class="role-title">Coordinator</div><div class="role-sub">Monitor all boats on the map</div></div>
-    </button>
-    <button class="role-btn" style="border-style:dashed;" onclick="show('s-admin-login')">
-      <div class="role-icon" style="background:#f8f8f6;">⚙️</div>
-      <div><div class="role-title">Admin</div><div class="role-sub">Manage settings &amp; users</div></div>
-    </button>
+    <div style="text-align:center;margin-top:24px;">
+      <button onclick="openStaffMenu()" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:8px;">Staff / Crew sign in ›</button>
+    </div>
   </div>
 </div>
 
@@ -456,6 +467,12 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
       <input type="password" id="confirm-admin-pin" maxlength="8" placeholder="Confirm PIN" inputmode="numeric"/>
       <button class="btn btn-primary" onclick="changeAdminPin()">Update admin PIN</button>
     </div>
+    <div class="sec" style="margin-top:4px;">Active event</div>
+    <div class="card">
+      <div class="lbl">Currently active event (shown to all participants)</div>
+      <select id="set-active-event"></select>
+      <button class="btn btn-primary" style="margin-top:4px;" onclick="saveActiveEvent()">Set active event</button>
+    </div>
     <div class="sec" style="margin-top:4px;">Trips</div>
     <div id="trips-list-admin" class="card" style="padding:8px 12px;margin-bottom:8px;"></div>
     <button class="btn" onclick="show('s-admin-addtrip')">+ Add trip</button>
@@ -598,11 +615,23 @@ function haversine(lat1,lon1,lat2,lon2) {
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
+window.openStaffMenu = () => {
+  const o = document.getElementById('staff-overlay');
+  o.style.display='flex';
+};
+window.closeStaffMenu = () => {
+  document.getElementById('staff-overlay').style.display='none';
+};
+document.getElementById('staff-overlay').addEventListener('click', e => {
+  if (e.target===document.getElementById('staff-overlay')) closeStaffMenu();
+});
+
 async function initDB() {
   const snap = await get(ref(db,'config'));
   if (!snap.exists()) {
     await set(ref(db,'config'), {
       adminPin:'1234',
+      activeEvent:'waikato',
       settings:{ interval:180, testInterval:5, mode:'normal', rescueNum:'021 555 0198', rescueDist:500 },
       trips:{
         waikato:{ name:'Waikato River', start:'Karapiro Dam', end:'Hoods Landing', date:'2026-04-03' },
@@ -617,10 +646,49 @@ async function initDB() {
   appState.settings = {...appState.settings, ...(cfg.settings||{})};
   appState.coordinators = cfg.coordinators || {};
   appState.rescueBoats = cfg.rescueBoats || {};
+  // Set active event
+  const activeId = cfg.activeEvent || 'waikato';
+  appState.currentEvent = activeId;
+  const trips = cfg.trips || {};
+  const activeName = trips[activeId] ? trips[activeId].name : activeId;
+  document.getElementById('active-event-label').textContent = activeName;
+  document.getElementById('active-event-name').textContent = activeName;
   populateDropdowns();
-  renderAdminCoords(); renderAdminRescue(); renderAdminTrips(cfg.trips||{});
+  renderAdminCoords(); renderAdminRescue(); renderAdminTrips(trips);
   applySettings();
+  // Load boats for participant dropdown from Firebase
+  loadBoatsForParticipant(activeId);
 }
+
+function loadBoatsForParticipant(eventId) {
+  onValue(ref(db,'events/'+eventId+'/boats'), snap => {
+    const boats = snap.val()||{};
+    const sel = document.getElementById('p-boat-sel');
+    const current = sel.value;
+    sel.innerHTML = '<option value="">— select your boat —</option>';
+    Object.entries(boats).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).forEach(([num,b]) => {
+      const o = document.createElement('option');
+      o.value = num;
+      o.textContent = 'Boat '+num+(b.name?' — '+b.name:'');
+      sel.appendChild(o);
+    });
+    if (current) sel.value = current;
+  });
+}
+
+window.saveActiveEvent = () => {
+  const id = document.getElementById('set-active-event').value;
+  if (!id) { toast('Select an event'); return; }
+  set(ref(db,'config/activeEvent'), id);
+  appState.currentEvent = id;
+  get(ref(db,'config/trips/'+id)).then(snap => {
+    const name = snap.val() ? snap.val().name : id;
+    document.getElementById('active-event-label').textContent = name;
+    document.getElementById('active-event-name').textContent = name;
+    loadBoatsForParticipant(id);
+  });
+  toast('Active event updated!');
+};
 
 function populateDropdowns() {
   const cu = document.getElementById('coord-user-sel');
@@ -677,9 +745,9 @@ function renderAdminTrips(trips) {
       <span style="flex:1;font-size:13px;">${t.name}</span>
       <span style="font-size:11px;color:var(--muted);">${t.date||''}</span>
     </div>`).join('');
-  const chips = document.getElementById('event-chips');
-  chips.innerHTML = entries.map(([id,t],i)=>`<span class="chip${i===0?' sel':''}" onclick="selEvent(this,'${id}')">${t.name}</span>`).join('')
-    +`<span class="chip" onclick="show('s-admin-addtrip')" style="border-style:dashed;">+ Add trip</span>`;
+  // populate active event dropdown in admin
+  const ae = document.getElementById('set-active-event');
+  ae.innerHTML = entries.map(([id,t])=>`<option value="${id}"${id===appState.currentEvent?' selected':''}>${t.name}</option>`).join('');
 }
 
 function getInterval() {
@@ -935,11 +1003,7 @@ window.registerBoat = () => {
   const phone = document.getElementById('new-boat-phone').value.trim();
   if (!num) { toast('Enter a boat number'); return; }
   set(ref(db,'events/'+appState.currentEvent+'/boats/'+num), { name, phone, registered:true, ts:null, sos:false, sosAck:false });
-  const sel = document.getElementById('p-boat-sel');
-  if (![...sel.options].some(o=>o.value===num)) {
-    const o=document.createElement('option'); o.value=num; o.textContent='Boat '+num+(name?' — '+name:''); sel.appendChild(o);
-  }
-  toast('Boat '+num+' registered!');
+  toast('Boat '+num+' registered! It will now appear in the participant login.');
   ['new-boat-num','new-boat-name','new-boat-phone'].forEach(id=>document.getElementById(id).value='');
   show('s-coord');
 };
