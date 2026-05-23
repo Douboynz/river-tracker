@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+<title>River Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#f5f5f0;--surface:#ffffff;--border:#e0ddd6;--text:#1a1a18;--muted:#888880;
+  --blue:#185fa5;--blue-light:#e6f1fb;--green:#27ae60;--amber:#f39c12;--red:#c0392b;
+  --red-light:#fcebeb;--warn-light:#fef9ec;--warn:#d97706;
+  --r1:#7c3aed;--r2:#0891b2;--r3:#d97706;--r4:#db2777;
+  --radius:12px;--radius-sm:8px;--font:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);min-height:100vh;display:flex;justify-content:center;}
+#app{width:100%;max-width:420px;min-height:100vh;background:var(--surface);position:relative;overflow:hidden;display:flex;flex-direction:column;}
+.screen{display:none;flex-direction:column;flex:1;min-height:100vh;}
+.screen.active{display:flex;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:10;}
+.topbar h2{font-size:16px;font-weight:600;flex:1;color:var(--text);}
+.back-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;font-size:20px;}
+.content{flex:1;padding:16px;overflow-y:auto;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;}
+.card-blue{background:var(--blue-light);border-color:#b5d4f4;}
+.card-red{background:var(--red-light);border-color:#f7c1c1;}
+.card-warn{background:var(--warn-light);border-color:#fac775;}
+.card-green{background:#eaf3de;border-color:#c0dd97;}
+.card-gray{background:#f8f8f6;border-color:var(--border);}
+.btn{display:block;width:100%;padding:13px;border-radius:var(--radius-sm);font-size:15px;font-weight:600;cursor:pointer;text-align:center;border:1px solid var(--border);background:var(--surface);color:var(--text);margin-bottom:10px;transition:all .15s;}
+.btn:active{transform:scale(0.98);}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+.btn-primary:hover{background:#0c447c;}
+.btn-sm{padding:6px 12px;font-size:13px;font-weight:500;width:auto;margin:0;display:inline-block;}
+.btn-danger{background:var(--red);color:#fff;border-color:var(--red);}
+.lbl{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px;margin-top:12px;text-transform:uppercase;letter-spacing:.05em;}
+.lbl:first-child{margin-top:0;}
+input,select{width:100%;padding:10px 13px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:15px;margin-bottom:12px;font-family:var(--font);appearance:none;-webkit-appearance:none;}
+input:focus,select:focus{outline:none;border-color:var(--blue);}
+.row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px;gap:8px;}
+.row:last-child{border-bottom:none;}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-g{background:var(--green);}.dot-y{background:var(--amber);}.dot-r{background:var(--red);}
+.dot-sos{background:var(--red);animation:blink .7s infinite;}
+.dot-off{background:#ccc;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
+.tab-bar{display:flex;border-top:1px solid var(--border);background:var(--surface);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom);}
+.tab{flex:1;padding:10px 3px 8px;text-align:center;font-size:10px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;line-height:1.4;transition:color .15s;}
+.tab-icon{display:block;margin:0 auto 2px;font-size:20px;}
+.tab.active{color:var(--blue);}
+.sec{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.err{color:var(--red);font-size:13px;margin-top:-8px;margin-bottom:10px;display:none;}
+.badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--blue-light);color:var(--blue);}
+.badge-green{background:#eaf3de;color:#3b6d11;}
+.stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px;}
+.stat{background:#f8f8f6;border-radius:var(--radius-sm);padding:12px 14px;}
+.stat-n{font-size:26px;font-weight:700;color:var(--text);}
+.stat-l{font-size:11px;color:var(--muted);margin-top:2px;}
+.map-wrap{background:#c8ddb8;border-radius:var(--radius);height:220px;position:relative;overflow:hidden;margin-bottom:12px;}
+.river{position:absolute;left:50%;top:0;bottom:0;width:22px;background:#4a8fd4;transform:translateX(-50%);}
+.mboat{position:absolute;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;cursor:pointer;border:2px solid rgba(255,255,255,.6);}
+.mboat.sos-boat{animation:blink .7s infinite;}
+.mlabel{position:absolute;font-size:8px;font-weight:600;background:rgba(255,255,255,.9);border-radius:4px;padding:2px 5px;color:#222;pointer-events:none;}
+.mpoi{position:absolute;width:14px;height:14px;border-radius:50%;border:2px solid #fff;cursor:pointer;}
+.hold-btn{width:100%;padding:18px;border-radius:var(--radius);background:var(--red);color:#fff;font-size:17px;font-weight:700;border:none;cursor:pointer;position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;}
+.hold-bar{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.25);width:0%;transition:width .09s linear;}
+.sos-overlay{background:rgba(0,0,0,.6);border-radius:var(--radius);padding:20px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.sos-modal{background:var(--surface);border-radius:var(--radius);padding:22px;text-align:center;width:100%;}
+.rescue-color{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:99px;font-size:12px;font-weight:600;margin:3px;}
+.chip{padding:7px 14px;border-radius:99px;font-size:13px;font-weight:500;border:1px solid var(--border);cursor:pointer;background:var(--surface);color:var(--text);margin:3px;display:inline-block;}
+.chip.sel{background:var(--blue);color:#fff;border-color:var(--blue);}
+.welcome-header{padding:32px 20px 20px;background:linear-gradient(160deg,#0f3d6b 0%,#185fa5 100%);color:#fff;}
+.welcome-header h1{font-size:26px;font-weight:700;margin-bottom:4px;}
+.welcome-header p{font-size:14px;opacity:.8;}
+.role-btn{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);cursor:pointer;margin-bottom:10px;transition:all .15s;text-align:left;width:100%;}
+.role-btn:hover{border-color:var(--blue);background:var(--blue-light);}
+.role-btn:active{transform:scale(0.98);}
+.role-icon{width:42px;height:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;}
+.role-title{font-size:15px;font-weight:600;color:var(--text);}
+.role-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.status-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius-sm);background:#f0f7ff;border:1px solid #b5d4f4;margin-bottom:12px;}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1a1a18;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:9999;display:none;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="toast" class="toast"></div>
+
+<!-- WELCOME -->
+<div class="screen active" id="s-welcome">
+  <div class="welcome-header">
+    <h1>🛶 River Tracker</h1>
+    <p>Safety &amp; location system</p>
+  </div>
+  <div class="content">
+    <div class="sec" style="margin-top:4px;">Select event</div>
+    <div style="margin-bottom:18px;" id="event-chips">
+      <span class="chip sel" onclick="selEvent(this,'waikato')">🏞 Waikato River</span>
+      <span class="chip" onclick="selEvent(this,'beachhaven')">🌊 Beach Haven Run</span>
+    </div>
+    <div class="sec">Sign in as</div>
+    <button class="role-btn" onclick="show('s-p-select')">
+      <div class="role-icon" style="background:#eaf3de;">⛵</div>
+      <div><div class="role-title">Participant</div><div class="role-sub">Share your location with coordinators</div></div>
+    </button>
+    <button class="role-btn" onclick="show('s-rescue-login')">
+      <div class="role-icon" style="background:#ede9fe;">🚤</div>
+      <div><div class="role-title">Rescue boat</div><div class="role-sub">Respond to SOS alerts</div></div>
+    </button>
+    <button class="role-btn" onclick="show('s-coord-login')">
+      <div class="role-icon" style="background:var(--blue-light);">🗺</div>
+      <div><div class="role-title">Coordinator</div><div class="role-sub">Monitor all boats on the map</div></div>
+    </button>
+    <button class="role-btn" style="border-style:dashed;" onclick="show('s-admin-login')">
+      <div class="role-icon" style="background:#f8f8f6;">⚙️</div>
+      <div><div class="role-title">Admin</div><div class="role-sub">Manage settings &amp; users</div></div>
+    </button>
+  </div>
+</div>
+
+<!-- PARTICIPANT SELECT -->
+<div class="screen" id="s-p-select">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('s-welcome')">←</button>
+    <h2>Participant sign in</h2>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="lbl">Your boat number</div>
+      <select id="p-boat-sel" onchange="showPinBox()">
+        <option value="">— select your boat —</option>
+      </select>
+      <div id="p-pin-wrap" style="display:none;">
+        <div class="lbl">PIN (your boat number)</div>
+        <input type="password" id="p-pin" maxlength="6" placeholder="Enter PIN" inputmode="numeric"/>
+        <button class="btn btn-primary" onclick="joinParticipant()">Join &amp; share location</button>
+        <div class="err" id="p-err">Incorrect PIN — your PIN is your boat number.</div>
+      </div>
+    </div>
+    <div class="card card-gray">
+      <div style="font-size:13px;color:var(--muted);line-height:1.6;">🔋 Low-power mode is on. Location updates save battery. Your boat must be registered by a coordinator before you can join.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PARTICIPANT ACTIVE -->
+<div class="screen" id="s-participant">
+  <div class="topbar">
+    <span style="width:12px;height:12px;border-radius:50%;background:var(--green);flex-shrink:0;display:inline-block;"></span>
+    <h2 id="p-label">Boat 7</h2>
+    <span class="badge badge-green">Live</span>
+  </div>
+  <div class="content">
+    <div class="status-bar">
+      <span class="dot dot-g" id="p-signal-dot"></span>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;color:var(--text);" id="p-status-text">Sharing location</div>
+        <div style="font-size:12px;color:var(--muted);" id="p-coords">Waiting for GPS…</div>
+      </div>
+    </div>
+    <div id="rescue-coming-wrap" style="display:none;">
+      <div class="card card-warn">
+        <div style="font-weight:700;font-size:14px;color:var(--warn);margin-bottom:4px;">🚤 Rescue is on the way</div>
+        <div style="font-size:13px;color:#7c5a1a;" id="rescue-eta-text">A rescue boat has been assigned to you.</div>
+      </div>
+      <div id="rescue-map-wrap" style="display:none;">
+        <div class="sec">Rescue boat nearby</div>
+        <div class="map-wrap" style="height:150px;">
+          <div class="river"></div>
+          <div class="mboat" style="background:var(--green);left:44%;top:35%;">Me</div>
+          <div class="mboat" style="left:51%;top:55%;" id="rescue-dot-p">R1</div>
+          <div class="mlabel" style="left:57%;top:57%;" id="rescue-dist-label">~320m</div>
+        </div>
+      </div>
+    </div>
+    <div id="sos-active-section">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6;">If you break down or need help, press and hold the SOS button below for 3 seconds.</p>
+      <button class="hold-btn" id="hold-btn"
+        onmousedown="startSOS()" ontouchstart="startSOS(event)"
+        onmouseup="cancelSOS()" ontouchend="cancelSOS()" onmouseleave="cancelSOS()">
+        <div class="hold-bar" id="hold-bar"></div>
+        <span style="position:relative;z-index:1;">⚠ Hold 3 seconds for SOS</span>
+      </button>
+    </div>
+    <div id="sos-sent-section" style="display:none;">
+      <div class="sos-overlay">
+        <div class="sos-modal">
+          <div style="font-size:40px;margin-bottom:8px;">🆘</div>
+          <div style="font-size:18px;font-weight:700;color:var(--red);margin-bottom:8px;">SOS sent!</div>
+          <div style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Keep your phone on and call the rescue coordinator:</div>
+          <div style="font-size:24px;font-weight:700;color:var(--text);margin-bottom:6px;" id="p-rescue-number">021 555 0198</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Stay with your boat. Coordinators can see your location.</div>
+          <button class="btn btn-sm" style="width:100%;" onclick="dismissSOS()">Dismiss</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESCUE LOGIN -->
+<div class="screen" id="s-rescue-login">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('s-welcome')">←</button>
+    <h2>Rescue boat sign in</h2>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="lbl">Rescue boat ID</div>
+      <select id="rescue-sel">
+        <option value="">— select rescue boat —</option>
+      </select>
+      <div class="lbl">PIN</div>
+      <input type="password" id="rescue-pin" maxlength="6" placeholder="Enter PIN" inputmode="numeric"/>
+      <button class="btn btn-primary" onclick="loginRescue()">Sign in</button>
+      <div class="err" id="rescue-err">Incorrect PIN.</div>
+    </div>
+  </div>
+</div>
+
+<!-- RESCUE ACTIVE -->
+<div class="screen" id="s-rescue">
+  <div class="topbar">
+    <span id="rescue-color-indicator" style="width:12px;height:12px;border-radius:50%;background:var(--r1);flex-shrink:0;display:inline-block;"></span>
+    <h2 id="rescue-label">Rescue R1</h2>
+    <span class="badge badge-green">Live</span>
+  </div>
+  <div class="content">
+    <div class="status-bar">
+      <span class="dot dot-g"></span>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:600;">Sharing location</div>
+        <div style="font-size:12px;color:var(--muted);" id="rescue-coords">Waiting for GPS…</div>
+      </div>
+    </div>
+    <div class="sec">Active SOS alerts</div>
+    <div id="rescue-sos-list">
+      <div class="card card-gray" style="text-align:center;color:var(--muted);font-size:14px;padding:20px;">No active SOS alerts</div>
+    </div>
+    <div class="card card-blue" style="margin-top:4px;">
+      <div style="font-size:13px;color:#0c447c;line-height:1.6;">Your boat appears in its assigned colour on the coordinator map. You will appear on a participant's screen when within 500m of them.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COORDINATOR LOGIN -->
+<div class="screen" id="s-coord-login">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('s-welcome')">←</button>
+    <h2>Coordinator sign in</h2>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="lbl">Coordinator</div>
+      <select id="coord-user-sel">
+        <option value="">— select coordinator —</option>
+      </select>
+      <div class="lbl">PIN</div>
+      <input type="password" id="coord-pin" maxlength="6" placeholder="Enter PIN" inputmode="numeric"/>
+      <button class="btn btn-primary" onclick="loginCoord()">Sign in</button>
+      <div class="err" id="coord-err">Incorrect PIN.</div>
+    </div>
+  </div>
+</div>
+
+<!-- COORDINATOR ACTIVE -->
+<div class="screen" id="s-coord">
+  <div class="topbar">
+    <span style="font-size:18px;">🗺</span>
+    <h2>Coordinator</h2>
+    <span class="badge" id="coord-badge">0 boats</span>
+  </div>
+  <div id="c-map-tab" style="display:flex;flex-direction:column;flex:1;">
+    <div class="content" style="padding-bottom:0;">
+      <div class="map-wrap" id="coord-map">
+        <div class="river"></div>
+        <div class="mlabel" style="left:10%;top:4%;background:#d4edda;color:#1a5c1a;font-size:9px;" id="map-start-label">Start</div>
+        <div class="mlabel" style="left:10%;top:88%;background:#d4edda;color:#1a5c1a;font-size:9px;" id="map-end-label">End</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;" id="rescue-legend"></div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;font-size:11px;color:var(--muted);">
+        <span style="display:flex;align-items:center;gap:4px;"><span class="dot dot-g"></span>&lt;2 min</span>
+        <span style="display:flex;align-items:center;gap:4px;"><span class="dot dot-y"></span>2–10 min</span>
+        <span style="display:flex;align-items:center;gap:4px;"><span class="dot dot-sos"></span>SOS / 10+ min</span>
+      </div>
+      <div id="coord-sos-alerts"></div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab active" onclick="coordTab('map',this)"><span class="tab-icon">🗺</span>Map</button>
+      <button class="tab" onclick="coordTab('boats',this)"><span class="tab-icon">⛵</span>Boats</button>
+      <button class="tab" onclick="coordTab('rescue',this)"><span class="tab-icon">🚤</span>Rescue</button>
+      <button class="tab" onclick="coordTab('poi',this)"><span class="tab-icon">📍</span>POIs</button>
+    </div>
+  </div>
+  <div id="c-boats-tab" style="display:none;flex-direction:column;flex:1;">
+    <div class="content">
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-n" id="stat-active">0</div><div class="stat-l">Boats active</div></div>
+        <div class="stat"><div class="stat-n" id="stat-sos" style="color:var(--red);">0</div><div class="stat-l">SOS active</div></div>
+      </div>
+      <div class="sec">Registered boats</div>
+      <div id="boat-list-coord" class="card" style="padding:8px 12px;">
+        <div style="text-align:center;padding:12px;color:var(--muted);font-size:14px;">No boats registered</div>
+      </div>
+      <button class="btn btn-primary" onclick="show('s-coord-addboat')" style="margin-top:4px;">+ Register boat</button>
+    </div>
+    <div class="tab-bar">
+      <button class="tab" onclick="coordTab('map',this)"><span class="tab-icon">🗺</span>Map</button>
+      <button class="tab active" onclick="coordTab('boats',this)"><span class="tab-icon">⛵</span>Boats</button>
+      <button class="tab" onclick="coordTab('rescue',this)"><span class="tab-icon">🚤</span>Rescue</button>
+      <button class="tab" onclick="coordTab('poi',this)"><span class="tab-icon">📍</span>POIs</button>
+    </div>
+  </div>
+  <div id="c-rescue-tab" style="display:none;flex-direction:column;flex:1;">
+    <div class="content">
+      <div class="sec">Rescue boats</div>
+      <div id="rescue-list-coord" class="card" style="padding:8px 12px;">
+        <div style="text-align:center;padding:12px;color:var(--muted);font-size:14px;">No rescue boats configured</div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab" onclick="coordTab('map',this)"><span class="tab-icon">🗺</span>Map</button>
+      <button class="tab" onclick="coordTab('boats',this)"><span class="tab-icon">⛵</span>Boats</button>
+      <button class="tab active" onclick="coordTab('rescue',this)"><span class="tab-icon">🚤</span>Rescue</button>
+      <button class="tab" onclick="coordTab('poi',this)"><span class="tab-icon">📍</span>POIs</button>
+    </div>
+  </div>
+  <div id="c-poi-tab" style="display:none;flex-direction:column;flex:1;">
+    <div class="content">
+      <div class="sec">Points of interest</div>
+      <div id="poi-list-coord" class="card" style="padding:8px 12px;">
+        <div style="text-align:center;padding:12px;color:var(--muted);font-size:14px;">No POIs added</div>
+      </div>
+      <button class="btn btn-primary" onclick="show('s-coord-addpoi')" style="margin-top:4px;">+ Add POI</button>
+    </div>
+    <div class="tab-bar">
+      <button class="tab" onclick="coordTab('map',this)"><span class="tab-icon">🗺</span>Map</button>
+      <button class="tab" onclick="coordTab('boats',this)"><span class="tab-icon">⛵</span>Boats</button>
+      <button class="tab" onclick="coordTab('rescue',this)"><span class="tab-icon">🚤</span>Rescue</button>
+      <button class="tab active" onclick="coordTab('poi',this)"><span class="tab-icon">📍</span>POIs</button>
+    </div>
+  </div>
+</div>
+
+<!-- COORD ADD BOAT -->
+<div class="screen" id="s-coord-addboat">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('s-coord')">←</button>
+    <h2>Register boat</h2>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="lbl">Boat number</div>
+      <input type="number" id="new-boat-num" placeholder="e.g. 14" min="1" max="999"/>
+      <div class="lbl">Participant name</div>
+      <input type="text" id="new-boat-name" placeholder="Full name"/>
+      <div class="lbl">Phone (optional)</div>
+      <input type="tel" id="new-boat-phone" placeholder="+64 21 …"/>
+      <button class="btn btn-primary" onclick="registerBoat()">Register boat</button>
+    </div>
+  </div>
+</div>
+
+<!-- COORD ADD POI -->
+<div class="screen" id="s-coord-addpoi">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('s-coord')">←</button>
+    <h2>Add point of interest</h2>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="lbl">Name</div>
+      <input type="text" id="poi-name" placeholder="e.g. Side outlet — turn here"/>
+      <div class="lbl">Type</div>
+      <select id="poi-type">
+        <option value="nav">Navigation marker</option>
+        <option value="ramp">Boat ramp</option>
+        <option value="hazard">Hazard</option>
+        <option value="checkpoint">Checkpoint</option>
+        <option value="other">Other</option>
+      </select>
+      <div class="lbl">Location</div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="poi-lat" placeholder="Latitude" style="width:50%;"/>
+        <input type="text" id="poi-lng" placeholder="Longitude" style="width:50%;margin-left:0;"/>
+      </div>
+      <button class="btn" style="margin-bottom:12px;" onclick="useMyLocationPOI()">📍 Use my current location</button>
+      <button class="btn btn-primary" onclick="savePOI()">Save POI</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div class="screen" id="s-admin-login">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('s-welcome')">←</button>
+    <h2>Admin sign in</h2>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="lbl">Admin PIN</div>
+      <input type="password" id="admin-pin-input" maxlength="8" placeholder="Enter PIN" inputmode="numeric"/>
+      <button class="btn btn-primary" onclick="loginAdmin()">Sign in</button>
+      <div class="err" id="admin-err">Incorrect PIN.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="screen" id="s-admin">
+  <div class="topbar">
+    <span style="font-size:18px;">⚙️</span>
+    <h2>Admin</h2>
+    <button onclick="show('s-welcome')" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);">Sign out</button>
+  </div>
+  <div class="content">
+    <div class="sec">Coordinators</div>
+    <div id="coord-list-admin" class="card" style="padding:8px 12px;margin-bottom:8px;"></div>
+    <button class="btn" onclick="show('s-admin-addcoord')" style="margin-bottom:16px;">+ Add coordinator</button>
+    <div class="sec">Rescue boats</div>
+    <div id="rescue-list-admin" class="card" style="padding:8px 12px;margin-bottom:8px;"></div>
+    <button class="btn" onclick="show('s-admin-addrescue')" style="margin-bottom:16px;">+ Add rescue boat</button>
+    <div class="sec">App settings</div>
+    <div class="card">
+      <div class="lbl">Normal update interval</div>
+      <select id="set-interval">
+        <option value="120">2 minutes</option>
+        <option value="180" selected>3 minutes</option>
+        <option value="300">5 minutes</option>
+      </select>
+      <div class="lbl">Test mode interval</div>
+      <select id="set-test-interval">
+        <option value="5" selected>5 seconds</option>
+        <option value="10">10 seconds</option>
+        <option value="30">30 seconds</option>
+      </select>
+      <div class="lbl">Current mode</div>
+      <select id="set-mode">
+        <option value="normal">Normal</option>
+        <option value="test">Test mode</option>
+      </select>
+      <div class="lbl">Rescue contact number</div>
+      <input type="tel" id="set-rescue-num" placeholder="e.g. 021 555 0198"/>
+      <div class="lbl">Rescue visible to participants within</div>
+      <select id="set-rescue-dist">
+        <option value="250">250m</option>
+        <option value="500" selected>500m</option>
+        <option value="1000">1km</option>
+      </select>
+      <button class="btn btn-primary" onclick="saveSettings()" style="margin-top:4px;">Save settings</button>
+    </div>
+    <div class="sec" style="margin-top:4px;">Change admin PIN</div>
+    <div class="card">
+      <div class="lbl">New PIN</div>
+      <input type="password" id="new-admin-pin" maxlength="8" placeholder="New PIN" inputmode="numeric"/>
+      <div class="lbl">Confirm PIN</div>
+      <input type="password" id="confirm-admin-pin" maxlength="8" placeholder="Confirm PIN" inputmode="numeric"/>
+      <button class="btn btn-primary" onclick="changeAdminPin()">Update admin PIN</button>
+    </div>
+    <div class="sec" style="margin-top:4px;">Trips</div>
+    <div id="trips-list-admin" class="card" style="padding:8px 12px;margin-bottom:8px;"></div>
+    <button class="btn" onclick="show('s-admin-addtrip')">+ Add trip</button>
+  </div>
+</div>
+
+<!-- ADMIN ADD COORD -->
+<div class="screen" id="s-admin-addcoord">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('s-admin')">←</button>
+    <h2>Add coordinator</h2>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="lbl">ID (e.g. C4)</div>
+      <input type="text" id="new-coord-id" placeholder="C4" maxlength="6"/>
+      <div class="lbl">Full name</div>
+      <input type="text" id="new-coord-name" placeholder="Full name"/>
+      <div class="lbl">PIN</div>
+      <input type="password" id="new-coord-pin" maxlength="6" placeholder="PIN" inputmode="numeric"/>
+      <div class="lbl">Confirm PIN</div>
+      <input type="password" id="new-coord-pin2" maxlength="6" placeholder="Confirm PIN" inputmode="numeric"/>
+      <button class="btn btn-primary" onclick="addCoordinator()">Add coordinator</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN ADD RESCUE -->
+<div class="screen" id="s-admin-addrescue">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('s-admin')">←</button>
+    <h2>Add rescue boat</h2>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="lbl">Rescue boat ID (e.g. R1, RA)</div>
+      <input type="text" id="new-rescue-id" placeholder="R1" maxlength="6"/>
+      <div class="lbl">Operator name</div>
+      <input type="text" id="new-rescue-name" placeholder="Full name"/>
+      <div class="lbl">PIN</div>
+      <input type="password" id="new-rescue-pin" maxlength="6" placeholder="PIN" inputmode="numeric"/>
+      <div class="lbl">Confirm PIN</div>
+      <input type="password" id="new-rescue-pin2" maxlength="6" placeholder="Confirm PIN" inputmode="numeric"/>
+      <button class="btn btn-primary" onclick="addRescueBoat()">Add rescue boat</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN ADD TRIP -->
+<div class="screen" id="s-admin-addtrip">
+  <div class="topbar">
+    <button class="back-btn" onclick="show('s-admin')">←</button>
+    <h2>Add trip</h2>
+  </div>
+  <div class="content">
+    <div class="card">
+      <div class="lbl">Trip name</div>
+      <input type="text" id="trip-name" placeholder="e.g. Waikato South Run"/>
+      <div class="lbl">Start location</div>
+      <input type="text" id="trip-start" placeholder="e.g. Karapiro Dam"/>
+      <div class="lbl">End location</div>
+      <input type="text" id="trip-end" placeholder="e.g. Rangiriri Boat Ramp"/>
+      <div class="lbl">Boat number range</div>
+      <div style="display:flex;gap:8px;">
+        <input type="number" id="trip-from" placeholder="From" style="width:50%;" min="1"/>
+        <input type="number" id="trip-to" placeholder="To" style="width:50%;margin-left:0;" min="1"/>
+      </div>
+      <div class="lbl">Event date</div>
+      <input type="date" id="trip-date"/>
+      <button class="btn btn-primary" onclick="addTrip()">Save trip</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, set, get, onValue, update, remove, push } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyC6mpK-pWuHA0cvluoI4J_DVBpxywjl9mU",
+  authDomain: "boat-tracker-f0b50.firebaseapp.com",
+  databaseURL: "https://boat-tracker-f0b50-default-rtdb.firebaseio.com",
+  projectId: "boat-tracker-f0b50",
+  storageBucket: "boat-tracker-f0b50.firebasestorage.app",
+  messagingSenderId: "315645045388",
+  appId: "1:315645045388:web:b97b34487e04dfbbcc29a9"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getDatabase(fbApp);
+
+const RESCUE_COLORS = ['#7c3aed','#0891b2','#d97706','#db2777','#059669','#dc2626'];
+
+let appState = {
+  role:null, boatId:null, rescueId:null, coordId:null,
+  currentEvent:'waikato', watchId:null, updateInterval:null,
+  settings:{ interval:180, testInterval:5, mode:'normal', rescueNum:'', rescueDist:500 },
+  adminPin:'1234', boats:{}, rescueBoats:{}, coordinators:{},
+  sosActive:false, sosInterval:null, sosPct:0
+};
+
+window.show = id => {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+};
+window.selEvent = (el, ev) => {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  appState.currentEvent = ev;
+};
+
+function toast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.style.display = 'none', dur);
+}
+
+function timeAgo(ts) {
+  if (!ts) return 'never';
+  const s = Math.floor((Date.now()-ts)/1000);
+  if (s < 10) return 'just now';
+  if (s < 60) return s+'s ago';
+  const m = Math.floor(s/60);
+  if (m < 60) return m+' min ago';
+  return Math.floor(m/60)+'h ago';
+}
+function signalClass(ts) {
+  if (!ts) return 'dot-off';
+  const m = (Date.now()-ts)/60000;
+  if (m < 2) return 'dot-g';
+  if (m < 10) return 'dot-y';
+  return 'dot-r';
+}
+function haversine(lat1,lon1,lat2,lon2) {
+  const R=6371000, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+async function initDB() {
+  const snap = await get(ref(db,'config'));
+  if (!snap.exists()) {
+    await set(ref(db,'config'), {
+      adminPin:'1234',
+      settings:{ interval:180, testInterval:5, mode:'normal', rescueNum:'021 555 0198', rescueDist:500 },
+      trips:{
+        waikato:{ name:'Waikato River', start:'Karapiro Dam', end:'Hoods Landing', date:'2026-04-03' },
+        beachhaven:{ name:'Beach Haven Run', start:'Beach Haven', end:'Riverhead', date:'2026-06-15' }
+      },
+      coordinators:{ C1:{ name:'John Harris', pin:'1111' }, C2:{ name:'Marie Tait', pin:'2222' } },
+      rescueBoats:{ R1:{ name:'Tom Reid', pin:'1111', color:'#7c3aed' }, R2:{ name:'Lena Park', pin:'2222', color:'#0891b2' } }
+    });
+  }
+  const cfg = (await get(ref(db,'config'))).val();
+  appState.adminPin = cfg.adminPin || '1234';
+  appState.settings = {...appState.settings, ...(cfg.settings||{})};
+  appState.coordinators = cfg.coordinators || {};
+  appState.rescueBoats = cfg.rescueBoats || {};
+  populateDropdowns();
+  renderAdminCoords(); renderAdminRescue(); renderAdminTrips(cfg.trips||{});
+  applySettings();
+}
+
+function populateDropdowns() {
+  const cu = document.getElementById('coord-user-sel');
+  cu.innerHTML = '<option value="">— select coordinator —</option>';
+  Object.entries(appState.coordinators).forEach(([id,c]) => {
+    const o = document.createElement('option'); o.value=id; o.textContent=id+' — '+c.name; cu.appendChild(o);
+  });
+  const rs = document.getElementById('rescue-sel');
+  rs.innerHTML = '<option value="">— select rescue boat —</option>';
+  Object.entries(appState.rescueBoats).forEach(([id,r]) => {
+    const o = document.createElement('option'); o.value=id; o.textContent=id+(r.name?' — '+r.name:''); rs.appendChild(o);
+  });
+}
+
+function applySettings() {
+  const s = appState.settings;
+  document.getElementById('set-rescue-num').value = s.rescueNum||'';
+  document.getElementById('set-interval').value = s.interval||180;
+  document.getElementById('set-test-interval').value = s.testInterval||5;
+  document.getElementById('set-mode').value = s.mode||'normal';
+  document.getElementById('set-rescue-dist').value = s.rescueDist||500;
+  document.getElementById('p-rescue-number').textContent = s.rescueNum||'Contact coordinator';
+}
+
+function renderAdminCoords() {
+  const el = document.getElementById('coord-list-admin');
+  const entries = Object.entries(appState.coordinators);
+  if (!entries.length) { el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No coordinators added</div>'; return; }
+  el.innerHTML = entries.map(([id,c])=>`
+    <div class="row">
+      <span style="font-weight:600;min-width:40px;">${id}</span>
+      <span style="flex:1;color:var(--muted);">${c.name||'—'}</span>
+      <button class="btn btn-sm" onclick="deleteCoord('${id}')">Remove</button>
+    </div>`).join('');
+}
+function renderAdminRescue() {
+  const el = document.getElementById('rescue-list-admin');
+  const entries = Object.entries(appState.rescueBoats);
+  if (!entries.length) { el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No rescue boats added</div>'; return; }
+  el.innerHTML = entries.map(([id,r],i)=>`
+    <div class="row">
+      <span style="width:11px;height:11px;border-radius:50%;background:${r.color||RESCUE_COLORS[i%RESCUE_COLORS.length]};flex-shrink:0;display:inline-block;"></span>
+      <span style="font-weight:600;min-width:40px;margin-left:4px;">${id}</span>
+      <span style="flex:1;color:var(--muted);">${r.name||'—'}</span>
+      <button class="btn btn-sm" onclick="deleteRescue('${id}')">Remove</button>
+    </div>`).join('');
+}
+function renderAdminTrips(trips) {
+  const el = document.getElementById('trips-list-admin');
+  const entries = Object.entries(trips||{});
+  if (!entries.length) { el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No trips</div>'; return; }
+  el.innerHTML = entries.map(([id,t])=>`
+    <div class="row">
+      <span style="flex:1;font-size:13px;">${t.name}</span>
+      <span style="font-size:11px;color:var(--muted);">${t.date||''}</span>
+    </div>`).join('');
+  const chips = document.getElementById('event-chips');
+  chips.innerHTML = entries.map(([id,t],i)=>`<span class="chip${i===0?' sel':''}" onclick="selEvent(this,'${id}')">${t.name}</span>`).join('')
+    +`<span class="chip" onclick="show('s-admin-addtrip')" style="border-style:dashed;">+ Add trip</span>`;
+}
+
+function getInterval() {
+  return appState.settings.mode==='test'
+    ? (appState.settings.testInterval||5)*1000
+    : (appState.settings.interval||180)*1000;
+}
+function startGPS(callback) {
+  if (!navigator.geolocation) { toast('GPS not available'); return; }
+  if (appState.watchId) navigator.geolocation.clearWatch(appState.watchId);
+  appState.watchId = navigator.geolocation.watchPosition(
+    p => callback(p.coords.latitude, p.coords.longitude),
+    e => toast('GPS: '+e.message),
+    { enableHighAccuracy:true, maximumAge:10000 }
+  );
+}
+
+// PARTICIPANT
+window.showPinBox = () => {
+  const v = document.getElementById('p-boat-sel').value;
+  document.getElementById('p-pin-wrap').style.display = v ? 'block' : 'none';
+  document.getElementById('p-err').style.display = 'none';
+  document.getElementById('p-pin').value = '';
+};
+window.joinParticipant = () => {
+  const boat = document.getElementById('p-boat-sel').value;
+  const pin = document.getElementById('p-pin').value;
+  if (pin === boat) {
+    appState.role='participant'; appState.boatId=boat;
+    document.getElementById('p-label').textContent = 'Boat '+boat;
+    document.getElementById('p-err').style.display = 'none';
+    show('s-participant');
+    startParticipantTracking(boat);
+  } else { document.getElementById('p-err').style.display = 'block'; }
+};
+
+let lastLat=null, lastLng=null;
+function startParticipantTracking(boatId) {
+  startGPS((lat,lng) => { lastLat=lat; lastLng=lng; });
+  const pushLoc = () => {
+    if (lastLat===null) return;
+    get(ref(db,'events/'+appState.currentEvent+'/boats/'+boatId)).then(snap => {
+      const d = snap.val()||{};
+      update(ref(db,'events/'+appState.currentEvent+'/boats/'+boatId),
+        { lat:lastLat, lng:lastLng, ts:Date.now(), sos:d.sos||false });
+      document.getElementById('p-coords').textContent = lastLat.toFixed(4)+'° S, '+Math.abs(lastLng).toFixed(4)+'° E';
+    });
+  };
+  pushLoc();
+  if (appState.updateInterval) clearInterval(appState.updateInterval);
+  appState.updateInterval = setInterval(pushLoc, getInterval());
+  onValue(ref(db,'events/'+appState.currentEvent+'/boats/'+boatId+'/sosAck'), snap => {
+    if (snap.val()) document.getElementById('rescue-coming-wrap').style.display = 'block';
+  });
+  onValue(ref(db,'events/'+appState.currentEvent+'/rescueLocations'), snap => {
+    if (!lastLat) return;
+    const rescues = snap.val()||{};
+    const dist = appState.settings.rescueDist||500;
+    let nearest=null, nd=Infinity;
+    Object.entries(rescues).forEach(([rid,r]) => {
+      if (!r.lat) return;
+      const d = haversine(lastLat,lastLng,r.lat,r.lng);
+      if (d < nd) { nd=d; nearest=rid; }
+    });
+    if (nearest && nd < dist) {
+      document.getElementById('rescue-map-wrap').style.display = 'block';
+      document.getElementById('rescue-dist-label').textContent = '~'+Math.round(nd)+'m';
+      const rb = appState.rescueBoats[nearest];
+      document.getElementById('rescue-dot-p').textContent = nearest;
+      document.getElementById('rescue-dot-p').style.background = rb ? rb.color : '#7c3aed';
+    }
+  });
+}
+
+window.startSOS = e => {
+  if (e) e.preventDefault();
+  if (appState.sosActive) return;
+  appState.sosPct=0;
+  const bar = document.getElementById('hold-bar');
+  appState.sosInterval = setInterval(() => {
+    appState.sosPct += 3.4;
+    bar.style.width = Math.min(appState.sosPct,100)+'%';
+    if (appState.sosPct >= 100) {
+      clearInterval(appState.sosInterval);
+      appState.sosActive=true; bar.style.width='0%';
+      document.getElementById('sos-active-section').style.display='none';
+      document.getElementById('sos-sent-section').style.display='block';
+      update(ref(db,'events/'+appState.currentEvent+'/boats/'+appState.boatId),
+        { sos:true, sosTime:Date.now() });
+      document.getElementById('p-rescue-number').textContent = appState.settings.rescueNum||'Contact coordinator';
+    }
+  }, 100);
+};
+window.cancelSOS = () => {
+  clearInterval(appState.sosInterval);
+  if (!appState.sosActive) document.getElementById('hold-bar').style.width='0%';
+};
+window.dismissSOS = () => { document.getElementById('sos-sent-section').style.display='none'; };
+
+// RESCUE
+window.loginRescue = () => {
+  const id = document.getElementById('rescue-sel').value;
+  const pin = document.getElementById('rescue-pin').value;
+  const rb = appState.rescueBoats[id];
+  if (rb && pin===rb.pin) {
+    appState.role='rescue'; appState.rescueId=id;
+    document.getElementById('rescue-label').textContent = 'Rescue '+id;
+    document.getElementById('rescue-color-indicator').style.background = rb.color||'#7c3aed';
+    document.getElementById('rescue-err').style.display='none';
+    show('s-rescue');
+    startRescueTracking(id, rb.color||'#7c3aed');
+    listenSOSForRescue();
+  } else { document.getElementById('rescue-err').style.display='block'; }
+};
+let lastRLat=null, lastRLng=null;
+function startRescueTracking(id, color) {
+  startGPS((lat,lng) => { lastRLat=lat; lastRLng=lng; });
+  const push = () => {
+    if (!lastRLat) return;
+    set(ref(db,'events/'+appState.currentEvent+'/rescueLocations/'+id),
+      { lat:lastRLat, lng:lastRLng, ts:Date.now(), color });
+    document.getElementById('rescue-coords').textContent = lastRLat.toFixed(4)+'° S, '+Math.abs(lastRLng).toFixed(4)+'° E';
+  };
+  push();
+  if (appState.updateInterval) clearInterval(appState.updateInterval);
+  appState.updateInterval = setInterval(push, getInterval());
+}
+function listenSOSForRescue() {
+  onValue(ref(db,'events/'+appState.currentEvent+'/boats'), snap => {
+    const boats = snap.val()||{};
+    const sosList = Object.entries(boats).filter(([,b])=>b.sos);
+    const el = document.getElementById('rescue-sos-list');
+    if (!sosList.length) { el.innerHTML='<div class="card card-gray" style="text-align:center;color:var(--muted);font-size:14px;padding:20px;">No active SOS alerts</div>'; return; }
+    el.innerHTML = sosList.map(([bid,b])=>`
+      <div class="card card-red">
+        <div style="font-weight:700;font-size:14px;color:var(--red);margin-bottom:6px;">🆘 Boat ${bid}${b.name?' — '+b.name:''}</div>
+        <div style="font-size:12px;color:#791f1f;margin-bottom:10px;">
+          Last seen: ${timeAgo(b.ts)}<br>
+          ${b.lat ? b.lat.toFixed(4)+'° S, '+Math.abs(b.lng).toFixed(4)+'° E' : 'Location unknown'}
+        </div>
+        <button class="btn btn-sm btn-primary" style="width:100%;" onclick="acknowledgeRescue('${bid}')">Mark as responding</button>
+      </div>`).join('');
+  });
+}
+window.acknowledgeRescue = bid => {
+  update(ref(db,'events/'+appState.currentEvent+'/boats/'+bid), { sosAck:true, rescueId:appState.rescueId });
+  toast('Responding to Boat '+bid);
+};
+
+// COORDINATOR
+window.loginCoord = () => {
+  const id = document.getElementById('coord-user-sel').value;
+  const pin = document.getElementById('coord-pin').value;
+  const c = appState.coordinators[id];
+  if (c && pin===c.pin) {
+    appState.role='coordinator'; appState.coordId=id;
+    document.getElementById('coord-err').style.display='none';
+    show('s-coord');
+    startCoordTracking(id);
+    listenAllBoats();
+    listenRescueForCoord();
+    loadPOIs();
+  } else { document.getElementById('coord-err').style.display='block'; }
+};
+let lastCLat=null, lastCLng=null;
+function startCoordTracking(id) {
+  startGPS((lat,lng) => { lastCLat=lat; lastCLng=lng; });
+  const push = () => {
+    if (!lastCLat) return;
+    set(ref(db,'events/'+appState.currentEvent+'/coordLocations/'+id), { lat:lastCLat, lng:lastCLng, ts:Date.now() });
+  };
+  push();
+  if (appState.updateInterval) clearInterval(appState.updateInterval);
+  appState.updateInterval = setInterval(push, getInterval());
+}
+function listenAllBoats() {
+  onValue(ref(db,'events/'+appState.currentEvent+'/boats'), snap => {
+    const boats = snap.val()||{};
+    appState.boats=boats;
+    renderCoordBoatList(boats);
+    renderCoordMap(boats);
+  });
+}
+function renderCoordBoatList(boats) {
+  const entries = Object.entries(boats);
+  document.getElementById('stat-active').textContent = entries.length;
+  document.getElementById('stat-sos').textContent = entries.filter(([,b])=>b.sos).length;
+  document.getElementById('coord-badge').textContent = entries.length+' boats';
+  const el = document.getElementById('boat-list-coord');
+  if (!entries.length) { el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No boats active yet</div>'; return; }
+  entries.sort((a,b) => a[1].sos&&!b[1].sos ? -1 : !a[1].sos&&b[1].sos ? 1 : (b[1].ts||0)-(a[1].ts||0));
+  el.innerHTML = entries.map(([bid,b])=>`
+    <div class="row">
+      <span class="dot ${b.sos?'dot-sos':signalClass(b.ts)}"></span>
+      <span style="font-weight:600;min-width:52px;">Boat ${bid}</span>
+      <span style="flex:1;color:var(--muted);font-size:13px;">${b.name||''}</span>
+      <span style="font-size:11px;color:${b.sos?'var(--red)':'var(--muted)'};">${b.sos?'🆘 SOS':timeAgo(b.ts)}</span>
+    </div>`).join('');
+  const sosList = entries.filter(([,b])=>b.sos);
+  document.getElementById('coord-sos-alerts').innerHTML = sosList.map(([bid,b])=>`
+    <div class="card card-red">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="dot dot-sos"></span>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:var(--red);">Boat ${bid}${b.name?' — '+b.name:''} — SOS</div>
+          <div style="font-size:11px;color:#791f1f;">${timeAgo(b.ts)} · ${b.rescueId?'Rescue '+b.rescueId+' responding':'Unassigned'}</div>
+        </div>
+        <button class="btn btn-sm" style="color:var(--blue);border-color:var(--blue);" onclick="clearSOS('${bid}')">Clear</button>
+      </div>
+    </div>`).join('');
+}
+function renderCoordMap(boats) {
+  const map = document.getElementById('coord-map');
+  map.querySelectorAll('.dyn').forEach(e=>e.remove());
+  const entries = Object.entries(boats);
+  entries.forEach(([bid,b],i) => {
+    const x = 32+(i%4)*9, y = 12+Math.floor(i/4)*20;
+    const dot = document.createElement('div');
+    dot.className='mboat dyn'+(b.sos?' sos-boat':'');
+    dot.style.cssText=`left:${x}%;top:${y}%;background:${b.sos?'var(--red)':'var(--green)'};`;
+    dot.textContent=bid; dot.title='Boat '+bid+(b.name?' — '+b.name:'');
+    map.appendChild(dot);
+  });
+}
+window.clearSOS = bid => {
+  update(ref(db,'events/'+appState.currentEvent+'/boats/'+bid), { sos:false, sosAck:false, rescueId:null });
+  toast('SOS cleared for Boat '+bid);
+};
+function listenRescueForCoord() {
+  onValue(ref(db,'events/'+appState.currentEvent+'/rescueLocations'), snap => {
+    const rescues = snap.val()||{};
+    document.getElementById('rescue-legend').innerHTML = Object.entries(rescues).map(([id,r])=>`
+      <span class="rescue-color" style="background:${r.color||'#7c3aed'}22;color:${r.color||'#7c3aed'};">
+        <span style="width:9px;height:9px;border-radius:50%;background:${r.color||'#7c3aed'};display:inline-block;"></span>${id}
+      </span>`).join('');
+    const entries = Object.entries(appState.rescueBoats);
+    const el = document.getElementById('rescue-list-coord');
+    if (!entries.length) { el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No rescue boats configured</div>'; return; }
+    el.innerHTML = entries.map(([id,r])=>{
+      const live=rescues[id];
+      return `<div class="row">
+        <span style="width:11px;height:11px;border-radius:50%;background:${r.color||'#7c3aed'};flex-shrink:0;display:inline-block;"></span>
+        <span style="font-weight:600;min-width:40px;margin-left:4px;">${id}</span>
+        <span style="flex:1;color:var(--muted);">${r.name||'—'}</span>
+        <span class="dot ${live?signalClass(live.ts):'dot-off'}"></span>
+      </div>`;
+    }).join('');
+  });
+}
+window.registerBoat = () => {
+  const num = document.getElementById('new-boat-num').value.trim();
+  const name = document.getElementById('new-boat-name').value.trim();
+  const phone = document.getElementById('new-boat-phone').value.trim();
+  if (!num) { toast('Enter a boat number'); return; }
+  set(ref(db,'events/'+appState.currentEvent+'/boats/'+num), { name, phone, registered:true, ts:null, sos:false, sosAck:false });
+  const sel = document.getElementById('p-boat-sel');
+  if (![...sel.options].some(o=>o.value===num)) {
+    const o=document.createElement('option'); o.value=num; o.textContent='Boat '+num+(name?' — '+name:''); sel.appendChild(o);
+  }
+  toast('Boat '+num+' registered!');
+  ['new-boat-num','new-boat-name','new-boat-phone'].forEach(id=>document.getElementById(id).value='');
+  show('s-coord');
+};
+function loadPOIs() {
+  onValue(ref(db,'events/'+appState.currentEvent+'/pois'), snap => {
+    const pois = snap.val()||{};
+    const el = document.getElementById('poi-list-coord');
+    const entries = Object.entries(pois);
+    if (!entries.length) { el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No POIs added</div>'; return; }
+    const icons={ nav:'📍', ramp:'🚢', hazard:'⚠️', checkpoint:'🏁', other:'📌' };
+    el.innerHTML = entries.map(([id,p])=>`
+      <div class="row">
+        <span>${icons[p.type]||'📌'}</span>
+        <span style="flex:1;font-size:13px;">${p.name}</span>
+        <button class="btn btn-sm" onclick="deletePOI('${id}')">Remove</button>
+      </div>`).join('');
+  });
+}
+window.useMyLocationPOI = () => {
+  navigator.geolocation.getCurrentPosition(p => {
+    document.getElementById('poi-lat').value = p.coords.latitude.toFixed(6);
+    document.getElementById('poi-lng').value = p.coords.longitude.toFixed(6);
+  }, () => toast('Could not get location'));
+};
+window.savePOI = () => {
+  const name = document.getElementById('poi-name').value.trim();
+  const type = document.getElementById('poi-type').value;
+  const lat = parseFloat(document.getElementById('poi-lat').value)||null;
+  const lng = parseFloat(document.getElementById('poi-lng').value)||null;
+  if (!name) { toast('Enter a POI name'); return; }
+  const nr = push(ref(db,'events/'+appState.currentEvent+'/pois'));
+  set(nr, { name, type, lat, lng, ts:Date.now() });
+  toast('POI saved!');
+  ['poi-name','poi-lat','poi-lng'].forEach(id=>document.getElementById(id).value='');
+  show('s-coord');
+};
+window.deletePOI = id => {
+  remove(ref(db,'events/'+appState.currentEvent+'/pois/'+id));
+  toast('POI removed');
+};
+window.coordTab = (tab) => {
+  ['map','boats','rescue','poi'].forEach(t => {
+    const el = document.getElementById('c-'+t+'-tab');
+    if (el) el.style.display = t===tab ? 'flex' : 'none';
+  });
+};
+
+// ADMIN
+window.loginAdmin = () => {
+  const p = document.getElementById('admin-pin-input').value;
+  if (p===appState.adminPin) {
+    document.getElementById('admin-err').style.display='none';
+    document.getElementById('admin-pin-input').value='';
+    show('s-admin');
+  } else { document.getElementById('admin-err').style.display='block'; }
+};
+window.saveSettings = () => {
+  const s = {
+    interval:parseInt(document.getElementById('set-interval').value),
+    testInterval:parseInt(document.getElementById('set-test-interval').value),
+    mode:document.getElementById('set-mode').value,
+    rescueNum:document.getElementById('set-rescue-num').value.trim(),
+    rescueDist:parseInt(document.getElementById('set-rescue-dist').value)
+  };
+  appState.settings=s;
+  update(ref(db,'config/settings'),s);
+  applySettings();
+  toast('Settings saved!');
+};
+window.changeAdminPin = () => {
+  const np=document.getElementById('new-admin-pin').value;
+  const cp=document.getElementById('confirm-admin-pin').value;
+  if (!np) { toast('Enter a PIN'); return; }
+  if (np!==cp) { toast('PINs do not match'); return; }
+  appState.adminPin=np;
+  set(ref(db,'config/adminPin'),np);
+  document.getElementById('new-admin-pin').value='';
+  document.getElementById('confirm-admin-pin').value='';
+  toast('Admin PIN updated!');
+};
+window.addCoordinator = () => {
+  const id=document.getElementById('new-coord-id').value.trim().toUpperCase();
+  const name=document.getElementById('new-coord-name').value.trim();
+  const pin=document.getElementById('new-coord-pin').value;
+  const pin2=document.getElementById('new-coord-pin2').value;
+  if (!id||!pin) { toast('Fill in all fields'); return; }
+  if (pin!==pin2) { toast('PINs do not match'); return; }
+  appState.coordinators[id]={ name, pin };
+  set(ref(db,'config/coordinators/'+id),{ name, pin });
+  renderAdminCoords(); populateDropdowns();
+  toast('Coordinator '+id+' added!'); show('s-admin');
+};
+window.deleteCoord = id => {
+  delete appState.coordinators[id];
+  remove(ref(db,'config/coordinators/'+id));
+  renderAdminCoords(); populateDropdowns();
+  toast('Removed '+id);
+};
+window.addRescueBoat = () => {
+  const id=document.getElementById('new-rescue-id').value.trim().toUpperCase();
+  const name=document.getElementById('new-rescue-name').value.trim();
+  const pin=document.getElementById('new-rescue-pin').value;
+  const pin2=document.getElementById('new-rescue-pin2').value;
+  if (!id||!pin) { toast('Fill in all fields'); return; }
+  if (pin!==pin2) { toast('PINs do not match'); return; }
+  const idx=Object.keys(appState.rescueBoats).length;
+  const color=RESCUE_COLORS[idx%RESCUE_COLORS.length];
+  appState.rescueBoats[id]={ name, pin, color };
+  set(ref(db,'config/rescueBoats/'+id),{ name, pin, color });
+  renderAdminRescue(); populateDropdowns();
+  toast('Rescue boat '+id+' added!'); show('s-admin');
+};
+window.deleteRescue = id => {
+  delete appState.rescueBoats[id];
+  remove(ref(db,'config/rescueBoats/'+id));
+  renderAdminRescue(); populateDropdowns();
+  toast('Removed '+id);
+};
+window.addTrip = () => {
+  const name=document.getElementById('trip-name').value.trim();
+  const start=document.getElementById('trip-start').value.trim();
+  const end=document.getElementById('trip-end').value.trim();
+  const from=document.getElementById('trip-from').value;
+  const to=document.getElementById('trip-to').value;
+  const date=document.getElementById('trip-date').value;
+  if (!name||!start||!end) { toast('Fill in trip name and locations'); return; }
+  const id=name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  set(ref(db,'config/trips/'+id),{ name, start, end, from, to, date });
+  get(ref(db,'config/trips')).then(snap => renderAdminTrips(snap.val()||{}));
+  toast('Trip added!'); show('s-admin');
+};
+
+initDB();
+</script>
+</body>
+</html>
