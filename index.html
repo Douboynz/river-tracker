@@ -396,21 +396,35 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
 <!-- COORD ADD POI -->
 <div class="screen" id="s-coord-addpoi">
   <div class="topbar"><button class="back-btn" onclick="show('s-coord')">←</button><h2>Add point of interest</h2></div>
-  <div class="content"><div class="card">
-    <div class="lbl">Name</div><input type="text" id="poi-name" placeholder="e.g. Side outlet — turn here"/>
-    <div class="lbl">Type</div>
-    <select id="poi-type">
-      <option value="nav">Navigation marker</option><option value="ramp">Boat ramp</option>
-      <option value="hazard">Hazard</option><option value="checkpoint">Checkpoint</option><option value="other">Other</option>
-    </select>
-    <div class="lbl">Location</div>
-    <div style="display:flex;gap:8px;">
-      <input type="text" id="poi-lat" placeholder="Latitude" style="width:50%;"/>
-      <input type="text" id="poi-lng" placeholder="Longitude" style="width:50%;margin-left:0;"/>
+  <div class="content">
+    <div class="card">
+      <div class="lbl">Name</div><input type="text" id="poi-name" placeholder="e.g. Side outlet — turn here"/>
+      <div class="lbl">Type</div>
+      <select id="poi-type">
+        <option value="nav">Navigation marker</option><option value="ramp">Boat ramp</option>
+        <option value="hazard">Hazard</option><option value="checkpoint">Checkpoint</option><option value="other">Other</option>
+      </select>
     </div>
-    <button class="btn" style="margin-bottom:12px;" onclick="useMyLocationPOI()">📍 Use my current location</button>
+    <div class="sec">Pin location</div>
+    <div class="card card-blue" style="font-size:13px;color:#0c447c;margin-bottom:8px;">
+      Tap the map to drop a pin, or use the buttons below.
+    </div>
+    <div style="position:relative;border-radius:var(--radius);overflow:hidden;margin-bottom:10px;">
+      <div id="poi-pick-map" style="height:220px;width:100%;"></div>
+      <div class="map-toggle" style="top:8px;right:8px;">
+        <button id="poi-map-street" class="active" onclick="togglePoiMap('street')">Street</button>
+        <button id="poi-map-sat" onclick="togglePoiMap('sat')">Satellite</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <button class="btn" style="flex:1;margin:0;" onclick="useMyLocationPOI()">📍 My location</button>
+      <button class="btn" style="flex:1;margin:0;" onclick="clearPoiPin()">✕ Clear pin</button>
+    </div>
+    <div id="poi-coords-display" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:12px;">No pin placed yet — tap the map</div>
+    <input type="hidden" id="poi-lat"/>
+    <input type="hidden" id="poi-lng"/>
     <button class="btn btn-primary" onclick="savePOI()">Save POI</button>
-  </div></div>
+  </div>
 </div>
 
 <!-- ADMIN LOGIN -->
@@ -631,6 +645,7 @@ window.show = id => {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   if (id==='s-coord') setTimeout(()=>{ if(coordMap) coordMap.invalidateSize(); }, 100);
+  if (id==='s-coord-addpoi') setTimeout(()=>initPoiPickMap(), 100);
 };
 window.openStaffMenu = () => document.getElementById('staff-overlay').style.display='flex';
 window.closeStaffMenu = () => document.getElementById('staff-overlay').style.display='none';
@@ -681,6 +696,10 @@ function initCoordMap() {
   coordStreetLayer = L.tileLayer(TILES.street,{attribution:ATTR_STREET,maxZoom:19}).addTo(coordMap);
   coordSatLayer = L.tileLayer(TILES.sat,{attribution:ATTR_SAT,maxZoom:19});
   setTimeout(()=>coordMap.invalidateSize(),200);
+  // auto-centre on user GPS if available
+  navigator.geolocation.getCurrentPosition(p=>{
+    coordMap.setView([p.coords.latitude, p.coords.longitude], 13);
+  }, ()=>{}, {enableHighAccuracy:true, timeout:8000});
 }
 window.toggleCoordMap = mode => {
   if (!coordMap) return;
@@ -713,6 +732,9 @@ function initPMainMap() {
   pMainStreetLayer = L.tileLayer(TILES.street,{attribution:ATTR_STREET,maxZoom:19}).addTo(pMainMap);
   pMainSatLayer = L.tileLayer(TILES.sat,{attribution:ATTR_SAT,maxZoom:19});
   setTimeout(()=>pMainMap.invalidateSize(),200);
+  navigator.geolocation.getCurrentPosition(p=>{
+    pMainMap.setView([p.coords.latitude, p.coords.longitude], 14);
+  }, ()=>{}, {enableHighAccuracy:true, timeout:8000});
 }
 window.togglePMainMap = mode => {
   if (!pMainMap) return;
@@ -1112,11 +1134,11 @@ function updateCoordMapBoats(boats) {
 }
 function renderCoordBoatList(boats) {
   const entries=Object.entries(boats);
-  document.getElementById('stat-active').textContent=entries.length;
+  document.getElementById('stat-active').textContent=entries.filter(([,b])=>b.ts).length;
   document.getElementById('stat-sos').textContent=entries.filter(([,b])=>b.sos).length;
   document.getElementById('coord-badge').textContent=entries.length+' boats';
   const el=document.getElementById('boat-list-coord');
-  if (!entries.length){el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No boats active yet</div>';return;}
+  if (!entries.length){el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No boats registered yet</div>';return;}
   entries.sort((a,b)=>a[1].sos&&!b[1].sos?-1:!a[1].sos&&b[1].sos?1:(b[1].ts||0)-(a[1].ts||0));
   el.innerHTML=entries.map(([bid,b])=>`<div class="row" onclick="focusBoat('${bid}',${b.lat||0},${b.lng||0})" style="cursor:pointer;"><span class="dot ${b.sos?'dot-sos':signalClass(b.ts)}"></span><span style="font-weight:600;min-width:52px;">Boat ${bid}</span><span style="flex:1;color:var(--muted);font-size:13px;">${b.name||''}</span><span style="font-size:11px;color:${b.sos?'var(--red)':'var(--muted)'};">${b.sos?'🆘 SOS':timeAgo(b.ts)}</span></div>`).join('');
   document.getElementById('coord-sos-alerts').innerHTML=entries.filter(([,b])=>b.sos).map(([bid,b])=>`<div class="card card-red" style="margin-bottom:8px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot dot-sos"></span><div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--red);">Boat ${bid}${b.name?' — '+b.name:''} — SOS</div><div style="font-size:11px;color:#791f1f;">${timeAgo(b.ts)} · ${b.rescueId?'Rescue '+b.rescueId+' responding':'Unassigned'}</div></div><button class="btn btn-sm" style="color:var(--blue);border-color:var(--blue);" onclick="clearSOS('${bid}')">Clear</button></div></div>`).join('');
@@ -1137,11 +1159,25 @@ function listenRescueForCoord() {
       Object.keys(coordRescueMarkers).forEach(id=>{ if(!rescues[id]){coordMap.removeLayer(coordRescueMarkers[id]);delete coordRescueMarkers[id];} });
     }
     document.getElementById('rescue-legend').innerHTML=Object.entries(rescues).map(([id,r])=>`<span class="rescue-color" style="background:${(r.color||'#7c3aed')}33;color:${r.color||'#7c3aed'};font-size:11px;padding:3px 8px;"><span style="width:8px;height:8px;border-radius:50%;background:${r.color||'#7c3aed'};display:inline-block;"></span>${id}</span>`).join('');
-    const entries=Object.entries(appState.rescueBoats);
-    const el=document.getElementById('rescue-list-coord');
-    if (!entries.length){el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No rescue boats configured</div>';return;}
-    el.innerHTML=entries.map(([id,r])=>{ const live=rescues[id]; return `<div class="row"><span style="width:11px;height:11px;border-radius:50%;background:${r.color||'#7c3aed'};flex-shrink:0;display:inline-block;"></span><span style="font-weight:600;min-width:40px;margin-left:4px;">${id}</span><span style="flex:1;color:var(--muted);">${r.name||'—'}</span><span class="dot ${live?signalClass(live.ts):'dot-off'}"></span></div>`; }).join('');
+    // Always render from config, not from live locations
+    renderRescueListForCoord(rescues);
   });
+}
+
+function renderRescueListForCoord(rescues) {
+  rescues = rescues || {};
+  const entries = Object.entries(appState.rescueBoats);
+  const el = document.getElementById('rescue-list-coord');
+  if (!entries.length) { el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No rescue boats configured</div>'; return; }
+  el.innerHTML = entries.map(([id,r]) => {
+    const live = rescues[id];
+    return `<div class="row">
+      <span style="width:11px;height:11px;border-radius:50%;background:${r.color||'#7c3aed'};flex-shrink:0;display:inline-block;"></span>
+      <span style="font-weight:600;min-width:40px;margin-left:4px;">${id}</span>
+      <span style="flex:1;color:var(--muted);">${r.name||'—'}</span>
+      <span class="dot ${live?signalClass(live.ts):'dot-off'}"></span>
+    </div>`;
+  }).join('');
 }
 
 function loadPOIs() {
@@ -1177,17 +1213,61 @@ window.registerBoat = ()=>{
   ['new-boat-num','new-boat-name','new-boat-phone'].forEach(id=>document.getElementById(id).value='');
   show('s-coord');
 };
-window.useMyLocationPOI = ()=>{ navigator.geolocation.getCurrentPosition(p=>{ document.getElementById('poi-lat').value=p.coords.latitude.toFixed(6); document.getElementById('poi-lng').value=p.coords.longitude.toFixed(6); },()=>toast('Could not get location')); };
+let poiPickMap=null, poiPickStreetLayer=null, poiPickSatLayer=null, poiPickMarker=null;
+function initPoiPickMap() {
+  if (poiPickMap) { setTimeout(()=>poiPickMap.invalidateSize(),100); return; }
+  const center = lastCLat ? [lastCLat,lastCLng] : DEFAULT_CENTER;
+  poiPickMap = L.map('poi-pick-map',{zoomControl:true}).setView(center, 14);
+  poiPickStreetLayer = L.tileLayer(TILES.street,{attribution:ATTR_STREET,maxZoom:19}).addTo(poiPickMap);
+  poiPickSatLayer = L.tileLayer(TILES.sat,{attribution:ATTR_SAT,maxZoom:19});
+  // auto-centre on GPS
+  navigator.geolocation.getCurrentPosition(p=>{
+    poiPickMap.setView([p.coords.latitude,p.coords.longitude],15);
+  },()=>{},{enableHighAccuracy:true,timeout:6000});
+  poiPickMap.on('click', e=>{ setPoiPin(e.latlng.lat, e.latlng.lng); });
+  setTimeout(()=>poiPickMap.invalidateSize(),200);
+}
+function setPoiPin(lat,lng) {
+  document.getElementById('poi-lat').value=lat.toFixed(6);
+  document.getElementById('poi-lng').value=lng.toFixed(6);
+  document.getElementById('poi-coords-display').textContent=lat.toFixed(5)+'° , '+lng.toFixed(5)+'°';
+  if (poiPickMarker) poiPickMarker.setLatLng([lat,lng]);
+  else { poiPickMarker=L.marker([lat,lng],{draggable:true}).addTo(poiPickMap); poiPickMarker.on('dragend',e=>{ const ll=e.target.getLatLng(); setPoiPin(ll.lat,ll.lng); }); }
+}
+window.togglePoiMap = mode=>{
+  if (!poiPickMap) return;
+  if (mode==='street'){poiPickMap.removeLayer(poiPickSatLayer);poiPickStreetLayer.addTo(poiPickMap);}
+  else{poiPickMap.removeLayer(poiPickStreetLayer);poiPickSatLayer.addTo(poiPickMap);}
+  document.getElementById('poi-map-street').className=mode==='street'?'active':'';
+  document.getElementById('poi-map-sat').className=mode==='sat'?'active':'';
+};
+window.clearPoiPin = ()=>{
+  document.getElementById('poi-lat').value='';
+  document.getElementById('poi-lng').value='';
+  document.getElementById('poi-coords-display').textContent='No pin placed yet — tap the map';
+  if (poiPickMarker){poiPickMap.removeLayer(poiPickMarker);poiPickMarker=null;}
+};
+window.useMyLocationPOI = ()=>{
+  navigator.geolocation.getCurrentPosition(p=>{
+    setPoiPin(p.coords.latitude,p.coords.longitude);
+    if (poiPickMap) poiPickMap.setView([p.coords.latitude,p.coords.longitude],16);
+  },()=>toast('Could not get location'));
+};
 window.savePOI = ()=>{
   const name=document.getElementById('poi-name').value.trim();
   const type=document.getElementById('poi-type').value;
   const lat=parseFloat(document.getElementById('poi-lat').value)||null;
   const lng=parseFloat(document.getElementById('poi-lng').value)||null;
   if (!name){toast('Enter a POI name');return;}
+  if (!lat||!lng){toast('Place a pin on the map first');return;}
   const nr=push(ref(db,'events/'+appState.currentEvent+'/pois'));
   set(nr,{name,type,lat,lng,ts:Date.now()});
   toast('POI saved!');
-  ['poi-name','poi-lat','poi-lng'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('poi-name').value='';
+  document.getElementById('poi-lat').value='';
+  document.getElementById('poi-lng').value='';
+  document.getElementById('poi-coords-display').textContent='No pin placed yet — tap the map';
+  if (poiPickMarker){poiPickMap.removeLayer(poiPickMarker);poiPickMarker=null;}
   show('s-coord');
 };
 window.deletePOI = id=>{ if(coordPoiMarkers[id]){coordMap.removeLayer(coordPoiMarkers[id]);delete coordPoiMarkers[id];} remove(ref(db,'events/'+appState.currentEvent+'/pois/'+id)); toast('POI removed'); };
@@ -1224,7 +1304,9 @@ window.addCoordinator = ()=>{
   const pin2=document.getElementById('new-coord-pin2').value;
   if (!id||!pin){toast('Fill in all fields');return;} if (pin!==pin2){toast('PINs do not match');return;}
   appState.coordinators[id]={name,pin}; set(ref(db,'config/coordinators/'+id),{name,pin});
-  renderAdminCoords(); populateDropdowns(); toast('Coordinator '+id+' added!'); show('s-admin');
+  renderAdminCoords(); populateDropdowns();
+  ['new-coord-id','new-coord-name','new-coord-pin','new-coord-pin2'].forEach(i=>document.getElementById(i).value='');
+  toast('Coordinator '+id+' added!'); show('s-admin');
 };
 window.deleteCoord = id=>{ delete appState.coordinators[id]; remove(ref(db,'config/coordinators/'+id)); renderAdminCoords(); populateDropdowns(); toast('Removed '+id); };
 window.addRescueBoat = ()=>{
@@ -1236,10 +1318,12 @@ window.addRescueBoat = ()=>{
   const idx=Object.keys(appState.rescueBoats).length;
   const color=RESCUE_COLORS[idx%RESCUE_COLORS.length];
   appState.rescueBoats[id]={name,pin,color}; set(ref(db,'config/rescueBoats/'+id),{name,pin,color});
-  renderAdminRescue(); populateDropdowns(); toast('Rescue boat '+id+' added!'); show('s-admin');
+  renderAdminRescue(); populateDropdowns();
+  ['new-rescue-id','new-rescue-name','new-rescue-pin','new-rescue-pin2'].forEach(i=>document.getElementById(i).value='');
+  toast('Rescue boat '+id+' added!'); show('s-admin');
 };
 window.deleteRescue = id=>{ delete appState.rescueBoats[id]; remove(ref(db,'config/rescueBoats/'+id)); renderAdminRescue(); populateDropdowns(); toast('Removed '+id); };
-window.addTrip = ()=>{
+window.addTrip = async ()=>{
   const name=document.getElementById('trip-name').value.trim();
   const start=document.getElementById('trip-start').value.trim();
   const end=document.getElementById('trip-end').value.trim();
@@ -1248,14 +1332,17 @@ window.addTrip = ()=>{
   const date=document.getElementById('trip-date').value;
   if (!name||!start||!end){toast('Fill in trip name and locations');return;}
   const id=name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
-  set(ref(db,'config/trips/'+id),{name,start,end,from,to,date});
-  get(ref(db,'config/trips')).then(snap=>renderAdminTrips(snap.val()||{}));
-  toast('Trip added!'); show('s-admin');
+  await set(ref(db,'config/trips/'+id),{name,start,end,from,to,date});
+  const snap=await get(ref(db,'config/trips'));
+  renderAdminTrips(snap.val()||{});
+  ['trip-name','trip-start','trip-end','trip-from','trip-to','trip-date'].forEach(i=>document.getElementById(i).value='');
+  toast('Trip saved!'); show('s-admin');
 };
-window.deleteTrip = id=>{
+window.deleteTrip = async id=>{
   if (id===appState.currentEvent){toast('Cannot delete the active event — change active event first');return;}
-  remove(ref(db,'config/trips/'+id));
-  get(ref(db,'config/trips')).then(snap=>renderAdminTrips(snap.val()||{}));
+  await remove(ref(db,'config/trips/'+id));
+  const snap=await get(ref(db,'config/trips'));
+  renderAdminTrips(snap.val()||{});
   toast('Trip deleted');
 };
 
