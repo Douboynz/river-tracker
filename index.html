@@ -541,6 +541,16 @@ const firebaseConfig = {
 };
 
 const fbApp = initializeApp(firebaseConfig);
+// Show cached event name immediately before Firebase loads
+try {
+  const cachedName = localStorage.getItem('bt_active_event_name');
+  const cachedId = localStorage.getItem('bt_active_event_id');
+  if (cachedName) {
+    document.getElementById('active-event-label').textContent = cachedName;
+    document.getElementById('active-event-name').textContent = cachedName;
+  }
+  if (cachedId) appState.currentEvent = cachedId;
+} catch(e){}
 const db = getDatabase(fbApp);
 const RESCUE_COLORS = ['#7c3aed','#0891b2','#d97706','#db2777','#059669','#dc2626'];
 const SESSION_KEY = 'bt_session';
@@ -777,6 +787,8 @@ async function initDB() {
   const activeName = trips[activeId]?trips[activeId].name:activeId;
   document.getElementById('active-event-label').textContent = activeName;
   document.getElementById('active-event-name').textContent = activeName;
+  // persist event name so it shows immediately on next load
+  try { localStorage.setItem('bt_active_event_name', activeName); localStorage.setItem('bt_active_event_id', activeId); } catch(e){}
   populateDropdowns();
   renderAdminCoords(); renderAdminRescue(); renderAdminTrips(trips);
   applySettings();
@@ -836,7 +848,10 @@ function renderAdminTrips(trips) {
   const el=document.getElementById('trips-list-admin');
   const entries=Object.entries(trips||{});
   if (!entries.length){el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No trips</div>';return;}
-  el.innerHTML=entries.map(([id,t])=>`<div class="row"><span style="flex:1;font-size:13px;">${t.name}</span><span style="font-size:11px;color:var(--muted);margin-right:8px;">${t.date||''}</span><button class="btn btn-sm" style="color:var(--red);border-color:var(--red);" onclick="deleteTrip('${id}')">Delete</button></div>`).join('');
+  el.innerHTML=entries.map(([id,t])=>{
+    const safeName=t.name.replace(/'/g,"\\'");
+    return `<div class="row"><span style="flex:1;font-size:13px;">${t.name}</span><span style="font-size:11px;color:var(--muted);margin-right:8px;">${t.date||''}</span><button class="btn btn-sm" style="color:var(--red);border-color:var(--red);" data-tripid="${id}" onclick="window.deleteTrip(this.dataset.tripid)">Delete</button></div>`;
+  }).join('');
   const ae=document.getElementById('set-active-event');
   ae.innerHTML=entries.map(([id,t])=>`<option value="${id}"${id===appState.currentEvent?' selected':''}>${t.name}</option>`).join('');
 }
@@ -1203,15 +1218,27 @@ window.coordTab = (tab)=>{
   ['map','boats','rescue','poi'].forEach(t=>{ const el=document.getElementById('c-'+t+'-tab'); if(el) el.style.display=t===tab?'flex':'none'; });
   if (tab==='map'&&coordMap) setTimeout(()=>coordMap.invalidateSize(),100);
 };
-window.registerBoat = ()=>{
+window.registerBoat = async ()=>{
   const num=document.getElementById('new-boat-num').value.trim();
   const name=document.getElementById('new-boat-name').value.trim();
   const phone=document.getElementById('new-boat-phone').value.trim();
   if (!num){toast('Enter a boat number');return;}
-  set(ref(db,'events/'+appState.currentEvent+'/boats/'+num),{name,phone,registered:true,ts:null,sos:false,sosAck:false});
+  await set(ref(db,'events/'+appState.currentEvent+'/boats/'+num),{name,phone,registered:true,ts:null,sos:false,sosAck:false});
+  // manually refresh boat list in case listener hasn't fired
+  const snap=await get(ref(db,'events/'+appState.currentEvent+'/boats'));
+  const boats=snap.val()||{};
+  appState.boats=boats;
+  renderCoordBoatList(boats);
+  // also update participant dropdown
+  const sel=document.getElementById('p-boat-sel');
+  if (![...sel.options].some(o=>o.value===num)){
+    const o=document.createElement('option');o.value=num;
+    o.textContent='Boat '+num+(name?' — '+name:'');sel.appendChild(o);
+  }
   toast('Boat '+num+' registered!');
   ['new-boat-num','new-boat-name','new-boat-phone'].forEach(id=>document.getElementById(id).value='');
   show('s-coord');
+  coordTab('boats');
 };
 let poiPickMap=null, poiPickStreetLayer=null, poiPickSatLayer=null, poiPickMarker=null;
 function initPoiPickMap() {
@@ -1294,7 +1321,13 @@ window.saveActiveEvent = ()=>{
   const id=document.getElementById('set-active-event').value;
   if (!id){toast('Select an event');return;}
   set(ref(db,'config/activeEvent'),id); appState.currentEvent=id;
-  get(ref(db,'config/trips/'+id)).then(snap=>{ const name=snap.val()?snap.val().name:id; document.getElementById('active-event-label').textContent=name; document.getElementById('active-event-name').textContent=name; loadBoatsForParticipant(id); });
+  get(ref(db,'config/trips/'+id)).then(snap=>{
+    const name=snap.val()?snap.val().name:id;
+    document.getElementById('active-event-label').textContent=name;
+    document.getElementById('active-event-name').textContent=name;
+    try { localStorage.setItem('bt_active_event_name',name); localStorage.setItem('bt_active_event_id',id); } catch(e){}
+    loadBoatsForParticipant(id);
+  });
   toast('Active event updated!');
 };
 window.addCoordinator = ()=>{
