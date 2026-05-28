@@ -1220,7 +1220,13 @@ function renderCoordBoatList(boats) {
   entries.sort(function(a,b){ return a[1].sos&&!b[1].sos?-1:!a[1].sos&&b[1].sos?1:(b[1].ts||0)-(a[1].ts||0); });
   el.innerHTML=entries.map(function(e){
     var bid=e[0], b=e[1];
-    return '<div class="row" style="cursor:pointer;" data-bid="'+bid+'" data-lat="'+(b.lat||0)+'" data-lng="'+(b.lng||0)+'" onclick="focusBoat(this.dataset.bid,parseFloat(this.dataset.lat),parseFloat(this.dataset.lng))"><span class="dot '+(b.sos?'dot-sos':signalClass(b.ts))+'"></span><span style="font-weight:600;min-width:52px;">Boat '+bid+'</span><span style="flex:1;color:var(--muted);font-size:13px;">'+(b.name||'')+'</span><span style="font-size:11px;color:'+(b.sos?'var(--red)':'var(--muted)')+';">'+(b.sos?'SOS':timeAgo(b.ts))+'</span></div>';
+    return '<div class="row">'
+      +'<span class="dot '+(b.sos?'dot-sos':signalClass(b.ts))+'" style="cursor:pointer;" data-bid="'+bid+'" data-lat="'+(b.lat||0)+'" data-lng="'+(b.lng||0)+'" onclick="focusBoat(this.dataset.bid,parseFloat(this.dataset.lat),parseFloat(this.dataset.lng))"></span>'
+      +'<span style="font-weight:600;min-width:52px;cursor:pointer;" data-bid="'+bid+'" data-lat="'+(b.lat||0)+'" data-lng="'+(b.lng||0)+'" onclick="focusBoat(this.dataset.bid,parseFloat(this.dataset.lat),parseFloat(this.dataset.lng))">Boat '+bid+'</span>'
+      +'<span style="flex:1;color:var(--muted);font-size:13px;cursor:pointer;" data-bid="'+bid+'" data-lat="'+(b.lat||0)+'" data-lng="'+(b.lng||0)+'" onclick="focusBoat(this.dataset.bid,parseFloat(this.dataset.lat),parseFloat(this.dataset.lng))">'+(b.name||'')+'</span>'
+      +'<span style="font-size:11px;color:'+(b.sos?'var(--red)':'var(--muted)')+';margin-right:6px;">'+(b.sos?'🆘 SOS':timeAgo(b.ts))+'</span>'
+      +'<button class="btn btn-sm" style="color:var(--red);border-color:var(--red);flex-shrink:0;" data-bid="'+bid+'" onclick="event.stopPropagation();removeBoat(this.dataset.bid)">Remove</button>'
+      +'</div>';
   }).join('');
   var sosEntries=entries.filter(function(e){ return e[1].sos; });
   document.getElementById('coord-sos-alerts').innerHTML=sosEntries.map(function(e){
@@ -1230,6 +1236,17 @@ function renderCoordBoatList(boats) {
 }
 window.focusBoat = function(bid,lat,lng){ if(!coordMap||!lat) return; coordTab('map'); coordMap.setView([lat,lng],16); if(coordBoatMarkers[bid]) coordBoatMarkers[bid].openPopup(); };
 window.clearSOS = function(bid){ update(ref(db,'events/'+appState.currentEvent+'/boats/'+bid),{sos:false,sosAck:false,rescueId:null}); toast('SOS cleared for Boat '+bid); };
+window.removeBoat = function(bid) {
+  if (!confirm('Remove Boat '+bid+' completely? This will delete all their data.')) return;
+  remove(ref(db,'events/'+appState.currentEvent+'/boats/'+bid));
+  // remove from map if marker exists
+  if (coordBoatMarkers[bid]) { coordMap.removeLayer(coordBoatMarkers[bid]); delete coordBoatMarkers[bid]; }
+  // remove from participant dropdown
+  var sel=document.getElementById('p-boat-sel');
+  var opt=[...sel.options].find(function(o){return o.value===bid;});
+  if (opt) sel.removeChild(opt);
+  toast('Boat '+bid+' removed');
+};
 
 function listenRescueForCoord() {
   onValue(ref(db,'events/'+appState.currentEvent+'/rescueLocations'), function(snap){
