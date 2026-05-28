@@ -274,7 +274,12 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
 <div class="screen" id="s-coord-login">
   <div class="topbar"><button class="back-btn" onclick="show('s-welcome')">&#x2190;</button><h2>Coordinator sign in</h2></div>
   <div class="content"><div class="card">
-    <div class="lbl">Coordinator</div>
+    <div class="lbl">Role</div>
+    <select id="coord-role-sel" onchange="updateCoordDropdown()">
+      <option value="coordinator">Coordinator</option>
+      <option value="rescueCoordinator">Rescue Coordinator</option>
+    </select>
+    <div class="lbl" id="coord-user-lbl">Coordinator</div>
     <select id="coord-user-sel"><option value="">&#x2014; select coordinator &#x2014;</option></select>
     <div class="lbl">PIN</div>
     <input type="password" id="coord-pin" maxlength="6" placeholder="Enter PIN" inputmode="numeric"/>
@@ -417,6 +422,10 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
     <div class="sec">Coordinators</div>
     <div id="coord-list-admin" class="card" style="padding:8px 12px;margin-bottom:8px;"></div>
     <button class="btn" onclick="show('s-admin-addcoord')" style="margin-bottom:16px;">+ Add coordinator</button>
+    <div class="sec">Rescue Coordinators</div>
+    <div class="card card-gray" style="font-size:12px;color:var(--muted);margin-bottom:8px;padding:10px 14px;">Rescue Coordinators have the same view as regular coordinators but are the <strong>only ones</strong> who can clear an SOS alert.</div>
+    <div id="rescue-coord-list-admin" class="card" style="padding:8px 12px;margin-bottom:8px;"></div>
+    <button class="btn" onclick="show('s-admin-addrescuecoord')" style="margin-bottom:16px;">+ Add rescue coordinator</button>
     <div class="sec">Rescue boats</div>
     <div id="rescue-list-admin" class="card" style="padding:8px 12px;margin-bottom:8px;"></div>
     <button class="btn" onclick="show('s-admin-addrescue')" style="margin-bottom:16px;">+ Add rescue boat</button>
@@ -450,6 +459,17 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
     <div id="trips-list-admin" class="card" style="padding:8px 12px;margin-bottom:8px;"></div>
     <button class="btn" onclick="show('s-admin-addtrip')">+ Add trip</button>
   </div>
+</div>
+
+<div class="screen" id="s-admin-addrescuecoord">
+  <div class="topbar"><button class="back-btn" onclick="show('s-admin')">&#x2190;</button><h2>Add rescue coordinator</h2></div>
+  <div class="content"><div class="card">
+    <div class="lbl">ID (e.g. RC1)</div><input type="text" id="new-rc-id" placeholder="RC1" maxlength="6"/>
+    <div class="lbl">Full name</div><input type="text" id="new-rc-name" placeholder="Full name"/>
+    <div class="lbl">PIN</div><input type="password" id="new-rc-pin" maxlength="6" placeholder="PIN" inputmode="numeric"/>
+    <div class="lbl">Confirm PIN</div><input type="password" id="new-rc-pin2" maxlength="6" placeholder="Confirm PIN" inputmode="numeric"/>
+    <button class="btn btn-primary" onclick="addRescueCoordinator()">Add rescue coordinator</button>
+  </div></div>
 </div>
 
 <div class="screen" id="s-admin-addcoord">
@@ -531,10 +551,10 @@ try {
 } catch(e){}
 
 let appState = {
-  role:null, boatId:null, rescueId:null, coordId:null,
+  role:null, boatId:null, rescueId:null, coordId:null, isRescueCoord:false,
   currentEvent:'waikato', watchId:null, updateInterval:null,
   settings:{ interval:180, testInterval:5, mode:'normal', rescueNum:'', rescueDist:500 },
-  adminPin:'1234', boats:{}, rescueBoats:{}, coordinators:{},
+  adminPin:'1234', boats:{}, rescueBoats:{}, coordinators:{}, rescueCoordinators:{},
   sosActive:false, sosInterval:null, sosPct:0,
   cancelSosInterval:null, cancelSosPct:0
 };
@@ -591,8 +611,11 @@ function restoreSession(session) {
     startParticipantTracking(session.boatId);
     return true;
   }
-  if (session.role === 'coordinator' && session.coordId && appState.coordinators[session.coordId]) {
-    appState.role='coordinator'; appState.coordId=session.coordId;
+  if (session.role === 'coordinator' && session.coordId) {
+    var pool = session.isRescueCoord ? appState.rescueCoordinators : appState.coordinators;
+    if (!pool[session.coordId]) return false;
+    appState.role='coordinator'; appState.coordId=session.coordId; appState.isRescueCoord=session.isRescueCoord||false;
+    document.querySelector('#s-coord .topbar h2').textContent = appState.isRescueCoord ? 'Rescue Coordinator' : 'Coordinator';
     show('s-coord');
     setTimeout(function(){ initCoordMap(); listenAllBoats(); listenRescueForCoord(); loadPOIs(); startCoordTracking(session.coordId); }, 200);
     return true;
@@ -767,6 +790,7 @@ async function initDB() {
   appState.settings = Object.assign({},appState.settings,cfg.settings||{});
   appState.coordinators = cfg.coordinators||{};
   appState.rescueBoats = cfg.rescueBoats||{};
+  appState.rescueCoordinators = cfg.rescueCoordinators||{};
   var activeId = cfg.activeEvent||'waikato';
   appState.currentEvent = activeId;
   var trips = cfg.trips||{};
@@ -822,8 +846,14 @@ function applySettings() {
 function renderAdminCoords() {
   var el=document.getElementById('coord-list-admin');
   var entries=Object.entries(appState.coordinators);
-  if (!entries.length){el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No coordinators added</div>';return;}
-  el.innerHTML=entries.map(function(e){ return '<div class="row"><span style="font-weight:600;min-width:40px;">'+e[0]+'</span><span style="flex:1;color:var(--muted);">'+(e[1].name||'&#x2014;')+'</span><button class="btn btn-sm" data-cid="'+e[0]+'" onclick="deleteCoord(this.dataset.cid)">Remove</button></div>'; }).join('');
+  if (!entries.length){el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No coordinators added</div>';}
+  else { el.innerHTML=entries.map(function(e){ return '<div class="row"><span style="font-weight:600;min-width:40px;">'+e[0]+'</span><span style="flex:1;color:var(--muted);">'+(e[1].name||'&#x2014;')+'</span><button class="btn btn-sm" data-cid="'+e[0]+'" onclick="deleteCoord(this.dataset.cid)">Remove</button></div>'; }).join(''); }
+  // render rescue coordinators
+  var rcEl=document.getElementById('rescue-coord-list-admin');
+  if (!rcEl) return;
+  var rcEntries=Object.entries(appState.rescueCoordinators||{});
+  if (!rcEntries.length){rcEl.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No rescue coordinators added</div>';}
+  else { rcEl.innerHTML=rcEntries.map(function(e){ return '<div class="row"><span style="font-size:16px;margin-right:2px;">🚨</span><span style="font-weight:600;min-width:40px;">'+e[0]+'</span><span style="flex:1;color:var(--muted);">'+(e[1].name||'&#x2014;')+'</span><button class="btn btn-sm" data-rcid="'+e[0]+'" onclick="deleteRescueCoord(this.dataset.rcid)">Remove</button></div>'; }).join(''); }
 }
 function renderAdminRescue() {
   var el=document.getElementById('rescue-list-admin');
@@ -1122,11 +1152,16 @@ window.navToSOS = function(bid,lat,lng){
 window.loginCoord = function() {
   var id=document.getElementById('coord-user-sel').value;
   var pin=document.getElementById('coord-pin').value;
-  var c=appState.coordinators[id];
+  var role=document.getElementById('coord-role-sel')?document.getElementById('coord-role-sel').value:'coordinator';
+  var isRC = role==='rescueCoordinator';
+  var pool = isRC ? appState.rescueCoordinators : appState.coordinators;
+  var c=pool[id];
   if (c && pin===c.pin) {
-    appState.role='coordinator'; appState.coordId=id;
+    appState.role='coordinator'; appState.coordId=id; appState.isRescueCoord=isRC;
     document.getElementById('coord-err').style.display='none';
-    saveSession({role:'coordinator',coordId:id,currentEvent:appState.currentEvent});
+    saveSession({role:'coordinator',coordId:id,isRescueCoord:isRC,currentEvent:appState.currentEvent});
+    // update topbar to show role
+    document.querySelector('#s-coord .topbar h2').textContent = isRC ? 'Rescue Coordinator' : 'Coordinator';
     show('s-coord');
     setTimeout(function(){ initCoordMap(); listenAllBoats(); listenRescueForCoord(); loadPOIs(); startCoordTracking(id); },200);
   } else { document.getElementById('coord-err').style.display='block'; }
@@ -1299,6 +1334,25 @@ window.saveActiveEvent = function() {
     loadBoatsForParticipant(id);
   });
   toast('Active event updated!');
+};
+window.addRescueCoordinator = function() {
+  var id=document.getElementById('new-rc-id').value.trim().toUpperCase();
+  var name=document.getElementById('new-rc-name').value.trim();
+  var pin=document.getElementById('new-rc-pin').value;
+  var pin2=document.getElementById('new-rc-pin2').value;
+  if (!id||!pin){toast('Fill in all fields');return;} if (pin!==pin2){toast('PINs do not match');return;}
+  if (!appState.rescueCoordinators) appState.rescueCoordinators={};
+  appState.rescueCoordinators[id]={name,pin};
+  set(ref(db,'config/rescueCoordinators/'+id),{name,pin});
+  renderAdminCoords(); populateDropdowns();
+  ['new-rc-id','new-rc-name','new-rc-pin','new-rc-pin2'].forEach(function(i){document.getElementById(i).value='';});
+  toast('Rescue Coordinator '+id+' added!'); show('s-admin');
+};
+window.deleteRescueCoord = function(id) {
+  delete appState.rescueCoordinators[id];
+  remove(ref(db,'config/rescueCoordinators/'+id));
+  renderAdminCoords(); populateDropdowns();
+  toast('Removed '+id);
 };
 window.addCoordinator = function() {
   var id=document.getElementById('new-coord-id').value.trim().toUpperCase();
