@@ -167,73 +167,63 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
     <span class="badge badge-green" style="margin-right:4px;">Live</span>
     <button class="logout-btn" onclick="logoutParticipant()">Not you?</button>
   </div>
-  <div id="p-tab-map" style="display:none;flex-direction:column;flex:1;">
+  <!-- Single combined screen: map + SOS -->
+  <div style="display:flex;flex-direction:column;flex:1;min-height:0;">
+    <!-- MAP (takes upper portion) -->
     <div style="flex:1;position:relative;min-height:0;">
-      <div id="p-main-map" style="width:100%;height:100%;min-height:300px;"></div>
+      <div id="p-main-map" style="width:100%;height:100%;min-height:260px;"></div>
       <div class="map-toggle" style="top:10px;right:10px;">
         <button id="p-map-street" class="active" onclick="togglePMainMap('street')">Street</button>
         <button id="p-map-sat" onclick="togglePMainMap('sat')">Satellite</button>
       </div>
-      <button class="map-locate" onclick="pMainMapLocate()">&#x1F4CD;</button>
+      <button class="map-locate" onclick="pMainMapLocate()" title="My location">📍</button>
+      <!-- location updated label overlaid on bottom of map -->
+      <div style="position:absolute;bottom:8px;left:8px;z-index:500;background:rgba(255,255,255,.85);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:500;color:var(--text);" id="p-coords">Waiting for GPS…</div>
     </div>
-    <div class="tab-bar">
-      <button class="tab" onclick="pTab('status',this)"><span class="tab-icon">&#x1F4E1;</span>Status</button>
-      <button class="tab active" onclick="pTab('map',this)"><span class="tab-icon">&#x1F5FA;</span>Map</button>
+    <!-- RESCUE BANNER — shown when rescue assigned -->
+    <div id="rescue-coming-wrap" style="display:none;padding:8px 12px 0;">
+      <div class="card card-warn" style="margin-bottom:0;">
+        <div style="font-weight:700;font-size:14px;color:var(--warn);margin-bottom:2px;">🚤 Rescue is on the way</div>
+        <div style="font-size:12px;color:#7c5a1a;">A rescue boat has been assigned — they will appear on the map when within 500m.</div>
+      </div>
     </div>
-  </div>
-  <div id="p-tab-status" style="display:flex;flex-direction:column;flex:1;">
-    <div class="content">
-      <div class="status-bar">
-        <span class="dot dot-g" id="p-signal-dot"></span>
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:600;color:var(--text);" id="p-status-text">Sharing location</div>
-          <div style="font-size:12px;color:var(--muted);" id="p-coords">Waiting for GPS...</div>
-        </div>
-      </div>
-      <div id="rescue-coming-wrap" style="display:none;">
-        <div class="card card-warn">
-          <div style="font-weight:700;font-size:14px;color:var(--warn);margin-bottom:4px;">&#x1F6A4; Rescue is on the way</div>
-          <div style="font-size:13px;color:#7c5a1a;">A rescue boat has been assigned to you. Check the map tab.</div>
-        </div>
-      </div>
+    <!-- BOTTOM SECTION: SOS controls -->
+    <div style="padding:10px 14px;padding-bottom:calc(10px + env(safe-area-inset-bottom));">
+      <!-- Normal SOS hold button -->
       <div id="sos-active-section">
-        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6;">If you break down or need help, press and hold the SOS button below for 3 seconds.</p>
         <button class="hold-btn" id="hold-btn" style="background:var(--red);"
           onmousedown="startSOS()" ontouchstart="startSOS(event)"
           onmouseup="cancelSOS()" ontouchend="cancelSOS()" onmouseleave="cancelSOS()">
           <div class="hold-bar" id="hold-bar"></div>
-          <span style="position:relative;z-index:1;">&#x26A0; Hold 3 seconds for SOS</span>
+          <span style="position:relative;z-index:1;">⚠ Hold 3 seconds for SOS</span>
         </button>
       </div>
+      <!-- SOS sent confirmation -->
       <div id="sos-sent-section" style="display:none;">
-        <div class="sos-overlay">
-          <div class="sos-modal">
-            <div style="font-size:40px;margin-bottom:8px;">&#x1F198;</div>
-            <div style="font-size:18px;font-weight:700;color:var(--red);margin-bottom:8px;">SOS sent!</div>
-            <div style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Keep your phone on and <strong>text</strong> the rescue coordinator:</div>
-            <div style="font-size:24px;font-weight:700;color:var(--text);margin-bottom:6px;" id="p-rescue-number">021 555 0198</div>
-            <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Stay with your boat. Coordinators can see your location.</div>
-            <button class="btn btn-sm" style="width:100%;margin-bottom:8px;" onclick="dismissSOS()">Dismiss</button>
-            <button class="btn btn-sm" style="width:100%;color:var(--amber);border-color:var(--amber);" onclick="openCancelSOS()">Cancel my SOS</button>
+        <div style="background:var(--red-light);border:1px solid #f7c1c1;border-radius:var(--radius);padding:14px;text-align:center;">
+          <div style="font-size:28px;margin-bottom:4px;">🆘</div>
+          <div style="font-size:16px;font-weight:700;color:var(--red);margin-bottom:4px;">SOS sent!</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:8px;line-height:1.5;">Keep your phone on and <strong>text</strong> the rescue coordinator:</div>
+          <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:10px;" id="p-rescue-number">021 555 0198</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-sm" style="flex:1;" onclick="dismissSOS()">Dismiss</button>
+            <button class="btn btn-sm" style="flex:1;color:var(--amber);border-color:var(--amber);" onclick="openCancelSOS()">Cancel SOS</button>
           </div>
         </div>
       </div>
+      <!-- SOS cancelled — show new SOS button again -->
       <div id="sos-cancelled-section" style="display:none;">
-        <div class="card card-warn">
-          <div style="font-weight:700;font-size:15px;color:var(--warn);margin-bottom:6px;">&#x2705; SOS Cancelled</div>
-          <div style="font-size:13px;color:#7c5a1a;line-height:1.6;">Remember to text the rescue coordinator to confirm your cancellation.</div>
+        <div class="card card-warn" style="margin-bottom:10px;">
+          <div style="font-weight:700;font-size:14px;color:var(--warn);margin-bottom:4px;">✅ SOS Cancelled</div>
+          <div style="font-size:12px;color:#7c5a1a;">Remember to text the rescue coordinator to confirm.</div>
         </div>
-        <button class="hold-btn" style="background:var(--red);margin-top:12px;"
+        <button class="hold-btn" style="background:var(--red);"
           onmousedown="startSOS()" ontouchstart="startSOS(event)"
           onmouseup="cancelSOS()" ontouchend="cancelSOS()" onmouseleave="cancelSOS()">
           <div class="hold-bar" id="hold-bar2"></div>
-          <span style="position:relative;z-index:1;">&#x26A0; Hold 3 seconds for SOS</span>
+          <span style="position:relative;z-index:1;">⚠ Hold 3 seconds for SOS</span>
         </button>
       </div>
-    </div>
-    <div class="tab-bar">
-      <button class="tab active" onclick="pTab('status',this)"><span class="tab-icon">&#x1F4E1;</span>Status</button>
-      <button class="tab" onclick="pTab('map',this)"><span class="tab-icon">&#x1F5FA;</span>Map</button>
     </div>
   </div>
 </div>
@@ -596,7 +586,8 @@ function restoreSession(session) {
   if (session.role === 'participant' && session.boatId) {
     appState.role='participant'; appState.boatId=session.boatId;
     document.getElementById('p-label').textContent='Boat '+session.boatId;
-    show('s-participant'); pTab('status');
+    show('s-participant');
+    setTimeout(function(){ initPMainMap(); setTimeout(function(){ if(pMainMap) pMainMap.invalidateSize(); },200); },100);
     startParticipantTracking(session.boatId);
     return true;
   }
@@ -713,28 +704,9 @@ window.togglePMainMap = function(mode) {
   document.getElementById('p-map-sat').className=mode==='sat'?'active':'';
 };
 window.pMainMapLocate = function(){ if(!pMainMap) return; navigator.geolocation.getCurrentPosition(function(p){ pMainMap.setView([p.coords.latitude,p.coords.longitude],15); }); };
-window.pTab = function(tab) {
-  document.getElementById('p-tab-status').style.display = tab==='status'?'flex':'none';
-  document.getElementById('p-tab-map').style.display = tab==='map'?'flex':'none';
-  if (tab==='map') {
-    initPMainMap();
-    setTimeout(function(){
-      if (pMainMap) {
-        pMainMap.invalidateSize();
-        // centre on last known position
-        if (lastLat) {
-          if (!pMainMyMarker) {
-            pMainMyMarker=L.marker([lastLat,lastLng],{icon:makeBoatIcon('Me','#27ae60'),zIndexOffset:1000})
-              .bindPopup(lastPushTs?'Location updated just now':'Your location').addTo(pMainMap);
-          }
-          pMainMap.setView([lastLat,lastLng],14);
-        }
-        // load POIs onto map
-        updatePOIsOnMap();
-      }
-    },200);
-  }
-};
+// pTab no longer needed — map and SOS are on one screen
+// Map is initialised automatically in joinParticipant
+window.pTab = function(tab) {};
 
 function initPoiPickMap() {
   if (poiPickMap) { setTimeout(function(){ poiPickMap.invalidateSize(); },100); return; }
@@ -890,7 +862,8 @@ window.joinParticipant = function() {
     document.getElementById('p-label').textContent='Boat '+boat;
     document.getElementById('p-err').style.display='none';
     saveSession({role:'participant',boatId:boat,currentEvent:appState.currentEvent});
-    show('s-participant'); pTab('status');
+    show('s-participant');
+    setTimeout(function(){ initPMainMap(); setTimeout(function(){ if(pMainMap) pMainMap.invalidateSize(); },200); },100);
     startParticipantTracking(boat);
   } else { document.getElementById('p-err').style.display='block'; }
 };
