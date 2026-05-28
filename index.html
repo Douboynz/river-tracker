@@ -82,32 +82,30 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
 <div id="app">
 <div id="toast" class="toast"></div>
 
-<!-- STAFF POPUP -->
 <div id="staff-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:600;align-items:flex-end;justify-content:center;">
   <div style="background:var(--surface);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-width:420px;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom));">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
       <div style="font-size:16px;font-weight:600;">Staff sign in</div>
-      <button onclick="closeStaffMenu()" style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--muted);">✕</button>
+      <button onclick="closeStaffMenu()" style="background:none;border:none;cursor:pointer;font-size:22px;color:var(--muted);">&#x2715;</button>
     </div>
     <button class="role-btn" onclick="closeStaffMenu();show('s-rescue-login')">
-      <div class="role-icon" style="background:#ede9fe;">🚤</div>
+      <div class="role-icon" style="background:#ede9fe;">&#x1F6A4;</div>
       <div><div class="role-title">Rescue boat</div><div class="role-sub">Respond to SOS alerts</div></div>
     </button>
     <button class="role-btn" onclick="closeStaffMenu();show('s-coord-login')">
-      <div class="role-icon" style="background:var(--blue-light);">🗺</div>
+      <div class="role-icon" style="background:var(--blue-light);">&#x1F5FA;</div>
       <div><div class="role-title">Coordinator</div><div class="role-sub">Monitor all boats on the map</div></div>
     </button>
     <button class="role-btn" style="border-style:dashed;" onclick="closeStaffMenu();show('s-admin-login')">
-      <div class="role-icon" style="background:#f8f8f6;">⚙️</div>
+      <div class="role-icon" style="background:#f8f8f6;">&#x2699;&#xFE0F;</div>
       <div><div class="role-title">Admin</div><div class="role-sub">Manage settings &amp; users</div></div>
     </button>
   </div>
 </div>
 
-<!-- CANCEL SOS POPUP -->
 <div id="cancel-sos-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:700;align-items:center;justify-content:center;">
   <div style="background:var(--surface);border-radius:var(--radius);padding:24px;margin:20px;text-align:center;width:100%;max-width:380px;">
-    <div style="font-size:36px;margin-bottom:8px;">📱</div>
+    <div style="font-size:36px;margin-bottom:8px;">&#x1F4F1;</div>
     <div style="font-size:18px;font-weight:700;color:var(--amber);margin-bottom:8px;">Cancel SOS?</div>
     <div style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Please text the rescue coordinator to let them know you are cancelling your rescue:</div>
     <div style="font-size:24px;font-weight:700;color:var(--text);margin-bottom:16px;" id="cancel-sos-number">021 555 0198</div>
@@ -122,52 +120,46 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
   </div>
 </div>
 
-<!-- WELCOME -->
 <div class="screen active" id="s-welcome">
   <div class="welcome-header">
     <img src="data:image/png;base64,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" alt="British Seagull" style="width:180px;height:auto;margin-bottom:16px;"/>
     <div style="font-size:22px;font-weight:700;color:#f5a623;letter-spacing:.02em;">BOAT TRACKER</div>
-    <div style="font-size:13px;color:#aaa;margin-top:4px;" id="active-event-name">Loading event…</div>
+    <div style="font-size:13px;color:#aaa;margin-top:4px;" id="active-event-name">Loading event...</div>
   </div>
   <div class="content">
     <div class="card card-blue" style="margin-bottom:20px;">
       <div style="font-size:12px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Active event</div>
-      <div style="font-size:18px;font-weight:600;color:var(--text);" id="active-event-label">Loading…</div>
+      <div style="font-size:18px;font-weight:600;color:var(--text);" id="active-event-label">Loading...</div>
     </div>
     <button class="role-btn" onclick="show('s-p-select')" style="background:var(--blue);border-color:var(--blue);margin-bottom:0;">
-      <div class="role-icon" style="background:rgba(255,255,255,.2);">⛵</div>
+      <div class="role-icon" style="background:rgba(255,255,255,.2);">&#x26F5;</div>
       <div><div class="role-title" style="color:#fff;">Join as participant</div><div class="role-sub" style="color:rgba(255,255,255,.75);">Share your location with coordinators</div></div>
     </button>
     <div style="text-align:center;margin-top:24px;">
-      <button onclick="openStaffMenu()" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:8px;">Staff / Crew sign in ›</button>
+      <button onclick="openStaffMenu()" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:8px;">Staff / Crew sign in &#x203A;</button>
     </div>
   </div>
 </div>
 
-<!-- PARTICIPANT SELECT -->
 <div class="screen" id="s-p-select">
-  <div class="topbar">
-    <button class="back-btn" onclick="show('s-welcome')">←</button>
-    <h2>Participant sign in</h2>
-  </div>
+  <div class="topbar"><button class="back-btn" onclick="show('s-welcome')">&#x2190;</button><h2>Participant sign in</h2></div>
   <div class="content">
     <div class="card">
       <div class="lbl">Your boat number</div>
-      <select id="p-boat-sel" onchange="showPinBox()"><option value="">— select your boat —</option></select>
+      <select id="p-boat-sel" onchange="showPinBox()"><option value="">&#x2014; select your boat &#x2014;</option></select>
       <div id="p-pin-wrap" style="display:none;">
         <div class="lbl">PIN (first 4 digits of boat number)</div>
         <input type="password" id="p-pin" maxlength="6" placeholder="Enter PIN" inputmode="numeric"/>
         <button class="btn btn-primary" onclick="joinParticipant()">Join &amp; share location</button>
-        <div class="err" id="p-err">Incorrect PIN — use the first 4 digits of your boat number.</div>
+        <div class="err" id="p-err">Incorrect PIN &#x2014; use the first 4 digits of your boat number.</div>
       </div>
     </div>
     <div class="card card-gray">
-      <div style="font-size:13px;color:var(--muted);line-height:1.6;">🔋 Low-power mode on — updates save battery. Your boat must be registered by a coordinator first.</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.6;">&#x1F50B; Low-power mode on. Your boat must be registered by a coordinator first.</div>
     </div>
   </div>
 </div>
 
-<!-- PARTICIPANT ACTIVE -->
 <div class="screen" id="s-participant">
   <div class="topbar">
     <span style="width:12px;height:12px;border-radius:50%;background:var(--green);flex-shrink:0;display:inline-block;"></span>
@@ -182,11 +174,11 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
         <button id="p-map-street" class="active" onclick="togglePMainMap('street')">Street</button>
         <button id="p-map-sat" onclick="togglePMainMap('sat')">Satellite</button>
       </div>
-      <button class="map-locate" onclick="pMainMapLocate()" title="My location">📍</button>
+      <button class="map-locate" onclick="pMainMapLocate()">&#x1F4CD;</button>
     </div>
     <div class="tab-bar">
-      <button class="tab" onclick="pTab('status',this)"><span class="tab-icon">📡</span>Status</button>
-      <button class="tab active" onclick="pTab('map',this)"><span class="tab-icon">🗺</span>Map</button>
+      <button class="tab" onclick="pTab('status',this)"><span class="tab-icon">&#x1F4E1;</span>Status</button>
+      <button class="tab active" onclick="pTab('map',this)"><span class="tab-icon">&#x1F5FA;</span>Map</button>
     </div>
   </div>
   <div id="p-tab-status" style="display:flex;flex-direction:column;flex:1;">
@@ -195,12 +187,12 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
         <span class="dot dot-g" id="p-signal-dot"></span>
         <div style="flex:1;">
           <div style="font-size:14px;font-weight:600;color:var(--text);" id="p-status-text">Sharing location</div>
-          <div style="font-size:12px;color:var(--muted);" id="p-coords">Waiting for GPS…</div>
+          <div style="font-size:12px;color:var(--muted);" id="p-coords">Waiting for GPS...</div>
         </div>
       </div>
       <div id="rescue-coming-wrap" style="display:none;">
         <div class="card card-warn">
-          <div style="font-weight:700;font-size:14px;color:var(--warn);margin-bottom:4px;">🚤 Rescue is on the way</div>
+          <div style="font-weight:700;font-size:14px;color:var(--warn);margin-bottom:4px;">&#x1F6A4; Rescue is on the way</div>
           <div style="font-size:13px;color:#7c5a1a;">A rescue boat has been assigned to you. Check the map tab.</div>
         </div>
       </div>
@@ -210,13 +202,13 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
           onmousedown="startSOS()" ontouchstart="startSOS(event)"
           onmouseup="cancelSOS()" ontouchend="cancelSOS()" onmouseleave="cancelSOS()">
           <div class="hold-bar" id="hold-bar"></div>
-          <span style="position:relative;z-index:1;">⚠ Hold 3 seconds for SOS</span>
+          <span style="position:relative;z-index:1;">&#x26A0; Hold 3 seconds for SOS</span>
         </button>
       </div>
       <div id="sos-sent-section" style="display:none;">
         <div class="sos-overlay">
           <div class="sos-modal">
-            <div style="font-size:40px;margin-bottom:8px;">🆘</div>
+            <div style="font-size:40px;margin-bottom:8px;">&#x1F198;</div>
             <div style="font-size:18px;font-weight:700;color:var(--red);margin-bottom:8px;">SOS sent!</div>
             <div style="font-size:14px;color:var(--muted);margin-bottom:14px;line-height:1.6;">Keep your phone on and <strong>text</strong> the rescue coordinator:</div>
             <div style="font-size:24px;font-weight:700;color:var(--text);margin-bottom:6px;" id="p-rescue-number">021 555 0198</div>
@@ -228,40 +220,36 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
       </div>
       <div id="sos-cancelled-section" style="display:none;">
         <div class="card card-warn">
-          <div style="font-weight:700;font-size:15px;color:var(--warn);margin-bottom:6px;">✅ SOS Cancelled</div>
+          <div style="font-weight:700;font-size:15px;color:var(--warn);margin-bottom:6px;">&#x2705; SOS Cancelled</div>
           <div style="font-size:13px;color:#7c5a1a;line-height:1.6;">Remember to text the rescue coordinator to confirm your cancellation.</div>
         </div>
-        <button class="hold-btn" id="hold-btn2" style="background:var(--red);margin-top:12px;"
+        <button class="hold-btn" style="background:var(--red);margin-top:12px;"
           onmousedown="startSOS()" ontouchstart="startSOS(event)"
           onmouseup="cancelSOS()" ontouchend="cancelSOS()" onmouseleave="cancelSOS()">
           <div class="hold-bar" id="hold-bar2"></div>
-          <span style="position:relative;z-index:1;">⚠ Hold 3 seconds for SOS</span>
+          <span style="position:relative;z-index:1;">&#x26A0; Hold 3 seconds for SOS</span>
         </button>
       </div>
     </div>
     <div class="tab-bar">
-      <button class="tab active" onclick="pTab('status',this)"><span class="tab-icon">📡</span>Status</button>
-      <button class="tab" onclick="pTab('map',this)"><span class="tab-icon">🗺</span>Map</button>
+      <button class="tab active" onclick="pTab('status',this)"><span class="tab-icon">&#x1F4E1;</span>Status</button>
+      <button class="tab" onclick="pTab('map',this)"><span class="tab-icon">&#x1F5FA;</span>Map</button>
     </div>
   </div>
 </div>
 
-<!-- RESCUE LOGIN -->
 <div class="screen" id="s-rescue-login">
-  <div class="topbar"><button class="back-btn" onclick="show('s-welcome')">←</button><h2>Rescue boat sign in</h2></div>
-  <div class="content">
-    <div class="card">
-      <div class="lbl">Rescue boat ID</div>
-      <select id="rescue-sel"><option value="">— select rescue boat —</option></select>
-      <div class="lbl">PIN</div>
-      <input type="password" id="rescue-pin" maxlength="6" placeholder="Enter PIN" inputmode="numeric"/>
-      <button class="btn btn-primary" onclick="loginRescue()">Sign in</button>
-      <div class="err" id="rescue-err">Incorrect PIN.</div>
-    </div>
-  </div>
+  <div class="topbar"><button class="back-btn" onclick="show('s-welcome')">&#x2190;</button><h2>Rescue boat sign in</h2></div>
+  <div class="content"><div class="card">
+    <div class="lbl">Rescue boat ID</div>
+    <select id="rescue-sel"><option value="">&#x2014; select rescue boat &#x2014;</option></select>
+    <div class="lbl">PIN</div>
+    <input type="password" id="rescue-pin" maxlength="6" placeholder="Enter PIN" inputmode="numeric"/>
+    <button class="btn btn-primary" onclick="loginRescue()">Sign in</button>
+    <div class="err" id="rescue-err">Incorrect PIN.</div>
+  </div></div>
 </div>
 
-<!-- RESCUE ACTIVE -->
 <div class="screen" id="s-rescue">
   <div class="topbar">
     <span id="rescue-color-indicator" style="width:12px;height:12px;border-radius:50%;background:#7c3aed;flex-shrink:0;display:inline-block;"></span>
@@ -274,7 +262,7 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
       <span class="dot dot-g"></span>
       <div style="flex:1;">
         <div style="font-size:14px;font-weight:600;">Sharing location</div>
-        <div style="font-size:12px;color:var(--muted);" id="rescue-coords">Waiting for GPS…</div>
+        <div style="font-size:12px;color:var(--muted);" id="rescue-coords">Waiting for GPS...</div>
       </div>
     </div>
     <div class="sec">Active SOS alerts</div>
@@ -284,7 +272,7 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
       <div class="map-container" style="height:220px;">
         <div id="rescue-nav-map" style="height:220px;border-radius:var(--radius);"></div>
         <div class="map-toggle"><button id="rescue-map-street" class="active" onclick="toggleRescueMap('street')">Street</button><button id="rescue-map-sat" onclick="toggleRescueMap('sat')">Satellite</button></div>
-        <button class="map-locate" onclick="rescueMapLocate()" title="My location">📍</button>
+        <button class="map-locate" onclick="rescueMapLocate()">&#x1F4CD;</button>
       </div>
     </div>
     <div class="card card-blue" style="margin-top:4px;">
@@ -293,25 +281,21 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
   </div>
 </div>
 
-<!-- COORDINATOR LOGIN -->
 <div class="screen" id="s-coord-login">
-  <div class="topbar"><button class="back-btn" onclick="show('s-welcome')">←</button><h2>Coordinator sign in</h2></div>
-  <div class="content">
-    <div class="card">
-      <div class="lbl">Coordinator</div>
-      <select id="coord-user-sel"><option value="">— select coordinator —</option></select>
-      <div class="lbl">PIN</div>
-      <input type="password" id="coord-pin" maxlength="6" placeholder="Enter PIN" inputmode="numeric"/>
-      <button class="btn btn-primary" onclick="loginCoord()">Sign in</button>
-      <div class="err" id="coord-err">Incorrect PIN.</div>
-    </div>
-  </div>
+  <div class="topbar"><button class="back-btn" onclick="show('s-welcome')">&#x2190;</button><h2>Coordinator sign in</h2></div>
+  <div class="content"><div class="card">
+    <div class="lbl">Coordinator</div>
+    <select id="coord-user-sel"><option value="">&#x2014; select coordinator &#x2014;</option></select>
+    <div class="lbl">PIN</div>
+    <input type="password" id="coord-pin" maxlength="6" placeholder="Enter PIN" inputmode="numeric"/>
+    <button class="btn btn-primary" onclick="loginCoord()">Sign in</button>
+    <div class="err" id="coord-err">Incorrect PIN.</div>
+  </div></div>
 </div>
 
-<!-- COORDINATOR ACTIVE -->
 <div class="screen" id="s-coord">
   <div class="topbar">
-    <span style="font-size:18px;">🗺</span>
+    <span style="font-size:18px;">&#x1F5FA;</span>
     <h2>Coordinator</h2>
     <span class="badge" id="coord-badge" style="margin-right:4px;">0 boats</span>
     <button class="logout-btn" onclick="logoutCoord()">Sign out</button>
@@ -320,28 +304,28 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
     <div style="flex:1;position:relative;min-height:0;">
       <div id="coord-map" style="width:100%;height:100%;min-height:300px;"></div>
       <div class="map-toggle" style="top:10px;right:10px;"><button id="coord-map-street" class="active" onclick="toggleCoordMap('street')">Street</button><button id="coord-map-sat" onclick="toggleCoordMap('sat')">Satellite</button></div>
-      <button class="map-locate" onclick="coordMapLocate()" title="My location">📍</button>
+      <button class="map-locate" onclick="coordMapLocate()">&#x1F4CD;</button>
       <div style="position:absolute;top:10px;left:10px;z-index:500;display:flex;flex-wrap:wrap;gap:4px;max-width:180px;" id="rescue-legend"></div>
     </div>
     <div style="padding:8px 14px;border-top:1px solid var(--border);background:var(--surface);">
       <div style="display:flex;gap:10px;font-size:11px;color:var(--muted);">
         <span style="display:flex;align-items:center;gap:4px;"><span class="dot dot-g"></span>&lt;2 min</span>
-        <span style="display:flex;align-items:center;gap:4px;"><span class="dot dot-y"></span>2–10 min</span>
+        <span style="display:flex;align-items:center;gap:4px;"><span class="dot dot-y"></span>2-10 min</span>
         <span style="display:flex;align-items:center;gap:4px;"><span class="dot dot-sos"></span>SOS</span>
       </div>
     </div>
     <div id="coord-sos-alerts" style="padding:0 14px 8px;"></div>
     <div class="tab-bar">
-      <button class="tab active" onclick="coordTab('map',this)"><span class="tab-icon">🗺</span>Map</button>
-      <button class="tab" onclick="coordTab('boats',this)"><span class="tab-icon">⛵</span>Boats</button>
-      <button class="tab" onclick="coordTab('rescue',this)"><span class="tab-icon">🚤</span>Rescue</button>
-      <button class="tab" onclick="coordTab('poi',this)"><span class="tab-icon">📍</span>POIs</button>
+      <button class="tab active" onclick="coordTab('map')"><span class="tab-icon">&#x1F5FA;</span>Map</button>
+      <button class="tab" onclick="coordTab('boats')"><span class="tab-icon">&#x26F5;</span>Boats</button>
+      <button class="tab" onclick="coordTab('rescue')"><span class="tab-icon">&#x1F6A4;</span>Rescue</button>
+      <button class="tab" onclick="coordTab('poi')"><span class="tab-icon">&#x1F4CD;</span>POIs</button>
     </div>
   </div>
   <div id="c-boats-tab" style="display:none;flex-direction:column;flex:1;">
     <div class="content">
       <div class="stat-grid">
-        <div class="stat"><div class="stat-n" id="stat-active">0</div><div class="stat-l">Boats active</div></div>
+        <div class="stat"><div class="stat-n" id="stat-active">0</div><div class="stat-l">Boats registered</div></div>
         <div class="stat"><div class="stat-n" id="stat-sos" style="color:var(--red);">0</div><div class="stat-l">SOS active</div></div>
       </div>
       <div class="sec">Registered boats</div>
@@ -349,10 +333,10 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
       <button class="btn btn-primary" onclick="show('s-coord-addboat')" style="margin-top:4px;">+ Register boat</button>
     </div>
     <div class="tab-bar">
-      <button class="tab" onclick="coordTab('map',this)"><span class="tab-icon">🗺</span>Map</button>
-      <button class="tab active" onclick="coordTab('boats',this)"><span class="tab-icon">⛵</span>Boats</button>
-      <button class="tab" onclick="coordTab('rescue',this)"><span class="tab-icon">🚤</span>Rescue</button>
-      <button class="tab" onclick="coordTab('poi',this)"><span class="tab-icon">📍</span>POIs</button>
+      <button class="tab" onclick="coordTab('map')"><span class="tab-icon">&#x1F5FA;</span>Map</button>
+      <button class="tab active" onclick="coordTab('boats')"><span class="tab-icon">&#x26F5;</span>Boats</button>
+      <button class="tab" onclick="coordTab('rescue')"><span class="tab-icon">&#x1F6A4;</span>Rescue</button>
+      <button class="tab" onclick="coordTab('poi')"><span class="tab-icon">&#x1F4CD;</span>POIs</button>
     </div>
   </div>
   <div id="c-rescue-tab" style="display:none;flex-direction:column;flex:1;">
@@ -361,10 +345,10 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
       <div id="rescue-list-coord" class="card" style="padding:8px 12px;"><div style="text-align:center;padding:12px;color:var(--muted);">No rescue boats configured</div></div>
     </div>
     <div class="tab-bar">
-      <button class="tab" onclick="coordTab('map',this)"><span class="tab-icon">🗺</span>Map</button>
-      <button class="tab" onclick="coordTab('boats',this)"><span class="tab-icon">⛵</span>Boats</button>
-      <button class="tab active" onclick="coordTab('rescue',this)"><span class="tab-icon">🚤</span>Rescue</button>
-      <button class="tab" onclick="coordTab('poi',this)"><span class="tab-icon">📍</span>POIs</button>
+      <button class="tab" onclick="coordTab('map')"><span class="tab-icon">&#x1F5FA;</span>Map</button>
+      <button class="tab" onclick="coordTab('boats')"><span class="tab-icon">&#x26F5;</span>Boats</button>
+      <button class="tab active" onclick="coordTab('rescue')"><span class="tab-icon">&#x1F6A4;</span>Rescue</button>
+      <button class="tab" onclick="coordTab('poi')"><span class="tab-icon">&#x1F4CD;</span>POIs</button>
     </div>
   </div>
   <div id="c-poi-tab" style="display:none;flex-direction:column;flex:1;">
@@ -374,31 +358,30 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
       <button class="btn btn-primary" onclick="show('s-coord-addpoi')" style="margin-top:4px;">+ Add POI</button>
     </div>
     <div class="tab-bar">
-      <button class="tab" onclick="coordTab('map',this)"><span class="tab-icon">🗺</span>Map</button>
-      <button class="tab" onclick="coordTab('boats',this)"><span class="tab-icon">⛵</span>Boats</button>
-      <button class="tab" onclick="coordTab('rescue',this)"><span class="tab-icon">🚤</span>Rescue</button>
-      <button class="tab active" onclick="coordTab('poi',this)"><span class="tab-icon">📍</span>POIs</button>
+      <button class="tab" onclick="coordTab('map')"><span class="tab-icon">&#x1F5FA;</span>Map</button>
+      <button class="tab" onclick="coordTab('boats')"><span class="tab-icon">&#x26F5;</span>Boats</button>
+      <button class="tab" onclick="coordTab('rescue')"><span class="tab-icon">&#x1F6A4;</span>Rescue</button>
+      <button class="tab active" onclick="coordTab('poi')"><span class="tab-icon">&#x1F4CD;</span>POIs</button>
     </div>
   </div>
 </div>
 
-<!-- COORD ADD BOAT -->
 <div class="screen" id="s-coord-addboat">
-  <div class="topbar"><button class="back-btn" onclick="show('s-coord')">←</button><h2>Register boat</h2></div>
+  <div class="topbar"><button class="back-btn" onclick="show('s-coord')">&#x2190;</button><h2>Register boat</h2></div>
   <div class="content"><div class="card">
-    <div class="lbl">Boat number</div><input type="number" id="new-boat-num" placeholder="e.g. 14" min="1" max="999999"/>
+    <div class="lbl">Boat number</div><input type="number" id="new-boat-num" placeholder="e.g. 14" min="1"/>
     <div class="lbl">Participant name</div><input type="text" id="new-boat-name" placeholder="Full name"/>
-    <div class="lbl">Phone (optional)</div><input type="tel" id="new-boat-phone" placeholder="+64 21 …"/>
+    <div class="lbl">Phone (optional)</div><input type="tel" id="new-boat-phone" placeholder="+64 21 ..."/>
     <button class="btn btn-primary" onclick="registerBoat()">Register boat</button>
+    <div id="register-boat-status" style="display:none;" class="card card-blue" style="margin-top:8px;"></div>
   </div></div>
 </div>
 
-<!-- COORD ADD POI -->
 <div class="screen" id="s-coord-addpoi">
-  <div class="topbar"><button class="back-btn" onclick="show('s-coord')">←</button><h2>Add point of interest</h2></div>
+  <div class="topbar"><button class="back-btn" onclick="show('s-coord')">&#x2190;</button><h2>Add point of interest</h2></div>
   <div class="content">
     <div class="card">
-      <div class="lbl">Name</div><input type="text" id="poi-name" placeholder="e.g. Side outlet — turn here"/>
+      <div class="lbl">Name</div><input type="text" id="poi-name" placeholder="e.g. Side outlet - turn here"/>
       <div class="lbl">Type</div>
       <select id="poi-type">
         <option value="nav">Navigation marker</option><option value="ramp">Boat ramp</option>
@@ -406,9 +389,7 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
       </select>
     </div>
     <div class="sec">Pin location</div>
-    <div class="card card-blue" style="font-size:13px;color:#0c447c;margin-bottom:8px;">
-      Tap the map to drop a pin, or use the buttons below.
-    </div>
+    <div class="card card-blue" style="font-size:13px;color:#0c447c;margin-bottom:8px;">Tap the map to drop a pin, or use My location.</div>
     <div style="position:relative;border-radius:var(--radius);overflow:hidden;margin-bottom:10px;">
       <div id="poi-pick-map" style="height:220px;width:100%;"></div>
       <div class="map-toggle" style="top:8px;right:8px;">
@@ -417,19 +398,18 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
       </div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:10px;">
-      <button class="btn" style="flex:1;margin:0;" onclick="useMyLocationPOI()">📍 My location</button>
-      <button class="btn" style="flex:1;margin:0;" onclick="clearPoiPin()">✕ Clear pin</button>
+      <button class="btn" style="flex:1;margin:0;" onclick="useMyLocationPOI()">&#x1F4CD; My location</button>
+      <button class="btn" style="flex:1;margin:0;" onclick="clearPoiPin()">&#x2715; Clear pin</button>
     </div>
-    <div id="poi-coords-display" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:12px;">No pin placed yet — tap the map</div>
+    <div id="poi-coords-display" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:12px;">No pin placed yet - tap the map</div>
     <input type="hidden" id="poi-lat"/>
     <input type="hidden" id="poi-lng"/>
     <button class="btn btn-primary" onclick="savePOI()">Save POI</button>
   </div>
 </div>
 
-<!-- ADMIN LOGIN -->
 <div class="screen" id="s-admin-login">
-  <div class="topbar"><button class="back-btn" onclick="show('s-welcome')">←</button><h2>Admin sign in</h2></div>
+  <div class="topbar"><button class="back-btn" onclick="show('s-welcome')">&#x2190;</button><h2>Admin sign in</h2></div>
   <div class="content"><div class="card">
     <div class="lbl">Admin PIN</div>
     <input type="password" id="admin-pin-input" maxlength="8" placeholder="Enter PIN" inputmode="numeric"/>
@@ -438,10 +418,9 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
   </div></div>
 </div>
 
-<!-- ADMIN -->
 <div class="screen" id="s-admin">
   <div class="topbar">
-    <span style="font-size:18px;">⚙️</span><h2>Admin</h2>
+    <span style="font-size:18px;">&#x2699;&#xFE0F;</span><h2>Admin</h2>
     <button onclick="logoutAdmin()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);">Sign out</button>
   </div>
   <div class="content">
@@ -473,7 +452,7 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
     </div>
     <div class="sec" style="margin-top:4px;">Active event</div>
     <div class="card">
-      <div class="lbl">Currently active event</div>
+      <div class="lbl">Currently active event (shown to all participants)</div>
       <select id="set-active-event"></select>
       <button class="btn btn-primary" style="margin-top:4px;" onclick="saveActiveEvent()">Set active event</button>
     </div>
@@ -483,9 +462,8 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
   </div>
 </div>
 
-<!-- ADMIN ADD COORD -->
 <div class="screen" id="s-admin-addcoord">
-  <div class="topbar"><button class="back-btn" onclick="show('s-admin')">←</button><h2>Add coordinator</h2></div>
+  <div class="topbar"><button class="back-btn" onclick="show('s-admin')">&#x2190;</button><h2>Add coordinator</h2></div>
   <div class="content"><div class="card">
     <div class="lbl">ID (e.g. C4)</div><input type="text" id="new-coord-id" placeholder="C4" maxlength="6"/>
     <div class="lbl">Full name</div><input type="text" id="new-coord-name" placeholder="Full name"/>
@@ -495,9 +473,8 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
   </div></div>
 </div>
 
-<!-- ADMIN ADD RESCUE -->
 <div class="screen" id="s-admin-addrescue">
-  <div class="topbar"><button class="back-btn" onclick="show('s-admin')">←</button><h2>Add rescue boat</h2></div>
+  <div class="topbar"><button class="back-btn" onclick="show('s-admin')">&#x2190;</button><h2>Add rescue boat</h2></div>
   <div class="content"><div class="card">
     <div class="lbl">Rescue boat ID (e.g. R1, RA)</div><input type="text" id="new-rescue-id" placeholder="R1" maxlength="6"/>
     <div class="lbl">Operator name</div><input type="text" id="new-rescue-name" placeholder="Full name"/>
@@ -507,9 +484,8 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
   </div></div>
 </div>
 
-<!-- ADMIN ADD TRIP -->
 <div class="screen" id="s-admin-addtrip">
-  <div class="topbar"><button class="back-btn" onclick="show('s-admin')">←</button><h2>Add trip</h2></div>
+  <div class="topbar"><button class="back-btn" onclick="show('s-admin')">&#x2190;</button><h2>Add trip</h2></div>
   <div class="content"><div class="card">
     <div class="lbl">Trip name</div><input type="text" id="trip-name" placeholder="e.g. Waikato South Run"/>
     <div class="lbl">Start location</div><input type="text" id="trip-start" placeholder="e.g. Karapiro Dam"/>
@@ -541,31 +517,28 @@ const firebaseConfig = {
 };
 
 const fbApp = initializeApp(firebaseConfig);
-// Show cached event name immediately before Firebase loads
-try {
-  const cachedName = localStorage.getItem('bt_active_event_name');
-  const cachedId = localStorage.getItem('bt_active_event_id');
-  if (cachedName) {
-    document.getElementById('active-event-label').textContent = cachedName;
-    document.getElementById('active-event-name').textContent = cachedName;
-  }
-  if (cachedId) appState.currentEvent = cachedId;
-} catch(e){}
 const db = getDatabase(fbApp);
 const RESCUE_COLORS = ['#7c3aed','#0891b2','#d97706','#db2777','#059669','#dc2626'];
 const SESSION_KEY = 'bt_session';
-const SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours
+const SESSION_DURATION = 8 * 60 * 60 * 1000;
 
 const TILES = {
   street: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   sat: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
 };
-const ATTR_STREET = '© <a href="https://openstreetmap.org">OpenStreetMap</a>';
-const ATTR_SAT = '© Esri';
+const ATTR_STREET = 'OpenStreetMap contributors';
+const ATTR_SAT = 'Esri';
 const DEFAULT_CENTER = [-37.55, 175.25];
 const DEFAULT_ZOOM = 10;
-const POI_ICONS = { nav:'📍', ramp:'🚢', hazard:'⚠️', checkpoint:'🏁', other:'📌' };
+const POI_ICONS = { nav:'P', ramp:'R', hazard:'!', checkpoint:'C', other:'*' };
 const POI_COLORS = { nav:'#185fa5', ramp:'#27ae60', hazard:'#f39c12', checkpoint:'#7c3aed', other:'#888' };
+
+// Show cached event name immediately
+try {
+  const cn = localStorage.getItem('bt_event_name');
+  const ci = localStorage.getItem('bt_event_id');
+  if (cn) { document.getElementById('active-event-label').textContent = cn; document.getElementById('active-event-name').textContent = cn; }
+} catch(e){}
 
 let appState = {
   role:null, boatId:null, rescueId:null, coordId:null,
@@ -576,29 +549,29 @@ let appState = {
   cancelSosInterval:null, cancelSosPct:0
 };
 
-// Maps
 let coordMap=null, coordStreetLayer=null, coordSatLayer=null;
 let coordBoatMarkers={}, coordRescueMarkers={}, coordPoiMarkers={};
 let rescueNavMap=null, rescueNavStreetLayer=null, rescueNavSatLayer=null, rescueNavMarkers={};
 let pMainMap=null, pMainStreetLayer=null, pMainSatLayer=null;
 let pMainMyMarker=null, pMainRescueMarkers={}, pMainPoiMarkers={};
+let poiPickMap=null, poiPickStreetLayer=null, poiPickSatLayer=null, poiPickMarker=null;
 
-function makeBoatIcon(label, color, isSos=false) {
-  return L.divIcon({ className:'', html:`<div class="boat-marker${isSos?' sos':''}" style="background:${color};">${label}</div>`, iconSize:[30,30], iconAnchor:[15,15], popupAnchor:[0,-15] });
+function makeBoatIcon(label, color, isSos) {
+  isSos = isSos || false;
+  var cls = 'boat-marker' + (isSos ? ' sos' : '');
+  return L.divIcon({ className:'', html:'<div class="'+cls+'" style="background:'+color+';">'+label+'</div>', iconSize:[30,30], iconAnchor:[15,15], popupAnchor:[0,-15] });
 }
-function makePoiIcon(emoji, color) {
-  return L.divIcon({ className:'', html:`<div class="poi-marker" style="background:${color};">${emoji}</div>`, iconSize:[24,24], iconAnchor:[12,12], popupAnchor:[0,-12] });
+function makePoiIcon(letter, color) {
+  return L.divIcon({ className:'', html:'<div class="poi-marker" style="background:'+color+';">'+letter+'</div>', iconSize:[24,24], iconAnchor:[12,12], popupAnchor:[0,-12] });
 }
 
-// SESSION MANAGEMENT
 function isLiveApp() {
-  return window.location.protocol === 'https:' ||
-    (window.location.protocol === 'http:' && window.location.hostname !== '');
+  return window.location.protocol === 'https:' || (window.location.protocol === 'http:' && window.location.hostname !== '');
 }
 function saveSession(data) {
   if (!isLiveApp()) return;
   try {
-    const payload = JSON.stringify({ ...data, ts: Date.now() });
+    var payload = JSON.stringify(Object.assign({}, data, {ts: Date.now()}));
     sessionStorage.setItem(SESSION_KEY, payload);
     localStorage.setItem(SESSION_KEY, payload);
   } catch(e){}
@@ -606,8 +579,8 @@ function saveSession(data) {
 function loadSession() {
   if (!isLiveApp()) return null;
   try {
-    const raw = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
-    const s = JSON.parse(raw||'null');
+    var raw = sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(SESSION_KEY);
+    var s = JSON.parse(raw || 'null');
     if (!s) return null;
     if (Date.now() - s.ts > SESSION_DURATION) { clearSession(); return null; }
     if (s.currentEvent && s.currentEvent !== appState.currentEvent) { clearSession(); return null; }
@@ -617,25 +590,24 @@ function loadSession() {
 function clearSession() {
   try { localStorage.removeItem(SESSION_KEY); sessionStorage.removeItem(SESSION_KEY); } catch(e){}
 }
-
 function restoreSession(session) {
   if (!session || !session.role) return false;
   appState.currentEvent = session.currentEvent || appState.currentEvent;
   if (session.role === 'participant' && session.boatId) {
     appState.role='participant'; appState.boatId=session.boatId;
     document.getElementById('p-label').textContent='Boat '+session.boatId;
-    show('s-participant'); pTab('status', null);
+    show('s-participant'); pTab('status');
     startParticipantTracking(session.boatId);
     return true;
   }
   if (session.role === 'coordinator' && session.coordId && appState.coordinators[session.coordId]) {
     appState.role='coordinator'; appState.coordId=session.coordId;
     show('s-coord');
-    setTimeout(()=>{ initCoordMap(); listenAllBoats(); listenRescueForCoord(); loadPOIs(); startCoordTracking(session.coordId); }, 200);
+    setTimeout(function(){ initCoordMap(); listenAllBoats(); listenRescueForCoord(); loadPOIs(); startCoordTracking(session.coordId); }, 200);
     return true;
   }
   if (session.role === 'rescue' && session.rescueId && appState.rescueBoats[session.rescueId]) {
-    const rb = appState.rescueBoats[session.rescueId];
+    var rb = appState.rescueBoats[session.rescueId];
     appState.role='rescue'; appState.rescueId=session.rescueId;
     document.getElementById('rescue-label').textContent='Rescue '+session.rescueId;
     document.getElementById('rescue-color-indicator').style.background=rb.color||'#7c3aed';
@@ -644,126 +616,168 @@ function restoreSession(session) {
     listenSOSForRescue();
     return true;
   }
-  if (session.role === 'admin') {
-    show('s-admin'); return true;
-  }
+  if (session.role === 'admin') { show('s-admin'); return true; }
   return false;
 }
 
-// UTIL
-window.show = id => {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+window.show = function(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
-  if (id==='s-coord') setTimeout(()=>{ if(coordMap) coordMap.invalidateSize(); }, 100);
-  if (id==='s-coord-addpoi') setTimeout(()=>initPoiPickMap(), 100);
+  if (id === 's-coord') setTimeout(function(){ if(coordMap) coordMap.invalidateSize(); }, 100);
+  if (id === 's-coord-addpoi') setTimeout(function(){ initPoiPickMap(); }, 100);
 };
-window.openStaffMenu = () => document.getElementById('staff-overlay').style.display='flex';
-window.closeStaffMenu = () => document.getElementById('staff-overlay').style.display='none';
-document.getElementById('staff-overlay').addEventListener('click', e => { if(e.target.id==='staff-overlay') closeStaffMenu(); });
+window.openStaffMenu = function() { document.getElementById('staff-overlay').style.display='flex'; };
+window.closeStaffMenu = function() { document.getElementById('staff-overlay').style.display='none'; };
+document.getElementById('staff-overlay').addEventListener('click', function(e){ if(e.target.id==='staff-overlay') closeStaffMenu(); });
 
-function toast(msg, dur=2500) {
-  const t=document.getElementById('toast'); t.textContent=msg; t.style.display='block';
-  clearTimeout(t._t); t._t=setTimeout(()=>t.style.display='none', dur);
+function toast(msg, dur) {
+  dur = dur || 2500;
+  var t=document.getElementById('toast'); t.textContent=msg; t.style.display='block';
+  clearTimeout(t._t); t._t=setTimeout(function(){ t.style.display='none'; }, dur);
 }
 function timeAgo(ts) {
   if (!ts) return 'never';
-  const s=Math.floor((Date.now()-ts)/1000);
+  var s=Math.floor((Date.now()-ts)/1000);
   if (s<10) return 'just now'; if (s<60) return s+'s ago';
-  const m=Math.floor(s/60); if (m<60) return m+' min ago';
+  var m=Math.floor(s/60); if (m<60) return m+' min ago';
   return Math.floor(m/60)+'h ago';
 }
 function signalClass(ts) {
   if (!ts) return 'dot-off';
-  const m=(Date.now()-ts)/60000;
+  var m=(Date.now()-ts)/60000;
   if (m<2) return 'dot-g'; if (m<10) return 'dot-y'; return 'dot-r';
 }
 function haversine(lat1,lon1,lat2,lon2) {
-  const R=6371000, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  var R=6371000, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+  var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
-function getBoatPin(boatNum) {
-  const s = String(boatNum);
-  return s.length > 4 ? s.substring(0, 4) : s;
-}
-function getInterval() {
-  return appState.settings.mode==='test'?(appState.settings.testInterval||5)*1000:(appState.settings.interval||180)*1000;
-}
+function getBoatPin(boatNum) { var s=String(boatNum); return s.length>4?s.substring(0,4):s; }
+function getInterval() { return appState.settings.mode==='test'?(appState.settings.testInterval||5)*1000:(appState.settings.interval||180)*1000; }
 function startGPS(callback) {
   if (!navigator.geolocation) { toast('GPS not available'); return; }
   if (appState.watchId) navigator.geolocation.clearWatch(appState.watchId);
   appState.watchId = navigator.geolocation.watchPosition(
-    p=>callback(p.coords.latitude,p.coords.longitude),
-    e=>console.warn('GPS:',e.message),
+    function(p){ callback(p.coords.latitude,p.coords.longitude); },
+    function(e){ console.warn('GPS:',e.message); },
     { enableHighAccuracy:true, maximumAge:10000 }
   );
 }
 
-// MAP INIT
 function initCoordMap() {
-  if (coordMap) return;
+  if (coordMap) { setTimeout(function(){ coordMap.invalidateSize(); },100); return; }
   coordMap = L.map('coord-map',{zoomControl:true}).setView(DEFAULT_CENTER, DEFAULT_ZOOM);
   coordStreetLayer = L.tileLayer(TILES.street,{attribution:ATTR_STREET,maxZoom:19}).addTo(coordMap);
   coordSatLayer = L.tileLayer(TILES.sat,{attribution:ATTR_SAT,maxZoom:19});
-  setTimeout(()=>coordMap.invalidateSize(),200);
-  // auto-centre on user GPS if available
-  navigator.geolocation.getCurrentPosition(p=>{
-    coordMap.setView([p.coords.latitude, p.coords.longitude], 13);
-  }, ()=>{}, {enableHighAccuracy:true, timeout:8000});
+  setTimeout(function(){ coordMap.invalidateSize(); },200);
+  navigator.geolocation.getCurrentPosition(function(p){ coordMap.setView([p.coords.latitude,p.coords.longitude],13); },function(){},{enableHighAccuracy:true,timeout:8000});
 }
-window.toggleCoordMap = mode => {
+window.toggleCoordMap = function(mode) {
   if (!coordMap) return;
   if (mode==='street'){coordMap.removeLayer(coordSatLayer);coordStreetLayer.addTo(coordMap);}
   else{coordMap.removeLayer(coordStreetLayer);coordSatLayer.addTo(coordMap);}
   document.getElementById('coord-map-street').className=mode==='street'?'active':'';
   document.getElementById('coord-map-sat').className=mode==='sat'?'active':'';
 };
-window.coordMapLocate = ()=>{ if(!coordMap) return; navigator.geolocation.getCurrentPosition(p=>coordMap.setView([p.coords.latitude,p.coords.longitude],14)); };
+window.coordMapLocate = function(){ if(!coordMap) return; navigator.geolocation.getCurrentPosition(function(p){ coordMap.setView([p.coords.latitude,p.coords.longitude],14); }); };
 
 function initRescueNavMap() {
   if (rescueNavMap) return;
   rescueNavMap = L.map('rescue-nav-map',{zoomControl:true}).setView(DEFAULT_CENTER, DEFAULT_ZOOM);
   rescueNavStreetLayer = L.tileLayer(TILES.street,{attribution:ATTR_STREET,maxZoom:19}).addTo(rescueNavMap);
   rescueNavSatLayer = L.tileLayer(TILES.sat,{attribution:ATTR_SAT,maxZoom:19});
-  setTimeout(()=>rescueNavMap.invalidateSize(),200);
+  setTimeout(function(){ rescueNavMap.invalidateSize(); },200);
 }
-window.toggleRescueMap = mode => {
+window.toggleRescueMap = function(mode) {
   if (!rescueNavMap) return;
   if (mode==='street'){rescueNavMap.removeLayer(rescueNavSatLayer);rescueNavStreetLayer.addTo(rescueNavMap);}
   else{rescueNavMap.removeLayer(rescueNavStreetLayer);rescueNavSatLayer.addTo(rescueNavMap);}
   document.getElementById('rescue-map-street').className=mode==='street'?'active':'';
   document.getElementById('rescue-map-sat').className=mode==='sat'?'active':'';
 };
-window.rescueMapLocate = ()=>{ if(!rescueNavMap) return; navigator.geolocation.getCurrentPosition(p=>rescueNavMap.setView([p.coords.latitude,p.coords.longitude],15)); };
+window.rescueMapLocate = function(){ if(!rescueNavMap) return; navigator.geolocation.getCurrentPosition(function(p){ rescueNavMap.setView([p.coords.latitude,p.coords.longitude],15); }); };
 
 function initPMainMap() {
-  if (pMainMap) return;
+  if (pMainMap) { setTimeout(function(){ pMainMap.invalidateSize(); },100); return; }
   pMainMap = L.map('p-main-map',{zoomControl:true}).setView(DEFAULT_CENTER, DEFAULT_ZOOM);
   pMainStreetLayer = L.tileLayer(TILES.street,{attribution:ATTR_STREET,maxZoom:19}).addTo(pMainMap);
   pMainSatLayer = L.tileLayer(TILES.sat,{attribution:ATTR_SAT,maxZoom:19});
-  setTimeout(()=>pMainMap.invalidateSize(),200);
-  navigator.geolocation.getCurrentPosition(p=>{
-    pMainMap.setView([p.coords.latitude, p.coords.longitude], 14);
-  }, ()=>{}, {enableHighAccuracy:true, timeout:8000});
+  setTimeout(function(){ pMainMap.invalidateSize(); },200);
+  navigator.geolocation.getCurrentPosition(function(p){ pMainMap.setView([p.coords.latitude,p.coords.longitude],14); },function(){},{enableHighAccuracy:true,timeout:8000});
 }
-window.togglePMainMap = mode => {
+window.togglePMainMap = function(mode) {
   if (!pMainMap) return;
   if (mode==='street'){pMainMap.removeLayer(pMainSatLayer);pMainStreetLayer.addTo(pMainMap);}
   else{pMainMap.removeLayer(pMainStreetLayer);pMainSatLayer.addTo(pMainMap);}
   document.getElementById('p-map-street').className=mode==='street'?'active':'';
   document.getElementById('p-map-sat').className=mode==='sat'?'active':'';
 };
-window.pMainMapLocate = ()=>{ if(!pMainMap) return; navigator.geolocation.getCurrentPosition(p=>pMainMap.setView([p.coords.latitude,p.coords.longitude],15)); };
-
-window.pTab = (tab, btn) => {
+window.pMainMapLocate = function(){ if(!pMainMap) return; navigator.geolocation.getCurrentPosition(function(p){ pMainMap.setView([p.coords.latitude,p.coords.longitude],15); }); };
+window.pTab = function(tab) {
   document.getElementById('p-tab-status').style.display = tab==='status'?'flex':'none';
   document.getElementById('p-tab-map').style.display = tab==='map'?'flex':'none';
-  if (tab==='map') { if (!pMainMap) initPMainMap(); setTimeout(()=>{ if(pMainMap) pMainMap.invalidateSize(); },100); }
+  if (tab==='map') {
+    initPMainMap();
+    setTimeout(function(){
+      if (pMainMap) {
+        pMainMap.invalidateSize();
+        // centre on last known position
+        if (lastLat) {
+          if (!pMainMyMarker) {
+            pMainMyMarker=L.marker([lastLat,lastLng],{icon:makeBoatIcon('Me','#27ae60'),zIndexOffset:1000})
+              .bindPopup(lastPushTs?'Location updated just now':'Your location').addTo(pMainMap);
+          }
+          pMainMap.setView([lastLat,lastLng],14);
+        }
+        // load POIs onto map
+        updatePOIsOnMap();
+      }
+    },200);
+  }
 };
 
-// INIT DB
+function initPoiPickMap() {
+  if (poiPickMap) { setTimeout(function(){ poiPickMap.invalidateSize(); },100); return; }
+  var center = lastCLat ? [lastCLat,lastCLng] : DEFAULT_CENTER;
+  poiPickMap = L.map('poi-pick-map',{zoomControl:true}).setView(center, 14);
+  poiPickStreetLayer = L.tileLayer(TILES.street,{attribution:ATTR_STREET,maxZoom:19}).addTo(poiPickMap);
+  poiPickSatLayer = L.tileLayer(TILES.sat,{attribution:ATTR_SAT,maxZoom:19});
+  navigator.geolocation.getCurrentPosition(function(p){ poiPickMap.setView([p.coords.latitude,p.coords.longitude],15); },function(){},{enableHighAccuracy:true,timeout:6000});
+  poiPickMap.on('click', function(e){ setPoiPin(e.latlng.lat, e.latlng.lng); });
+  setTimeout(function(){ poiPickMap.invalidateSize(); },200);
+}
+function setPoiPin(lat,lng) {
+  document.getElementById('poi-lat').value=lat.toFixed(6);
+  document.getElementById('poi-lng').value=lng.toFixed(6);
+  document.getElementById('poi-coords-display').textContent=lat.toFixed(5)+'  '+lng.toFixed(5);
+  if (poiPickMarker) poiPickMarker.setLatLng([lat,lng]);
+  else {
+    poiPickMarker=L.marker([lat,lng],{draggable:true}).addTo(poiPickMap);
+    poiPickMarker.on('dragend',function(e){ var ll=e.target.getLatLng(); setPoiPin(ll.lat,ll.lng); });
+  }
+}
+window.togglePoiMap = function(mode) {
+  if (!poiPickMap) return;
+  if (mode==='street'){poiPickMap.removeLayer(poiPickSatLayer);poiPickStreetLayer.addTo(poiPickMap);}
+  else{poiPickMap.removeLayer(poiPickStreetLayer);poiPickSatLayer.addTo(poiPickMap);}
+  document.getElementById('poi-map-street').className=mode==='street'?'active':'';
+  document.getElementById('poi-map-sat').className=mode==='sat'?'active':'';
+};
+window.clearPoiPin = function() {
+  document.getElementById('poi-lat').value='';
+  document.getElementById('poi-lng').value='';
+  document.getElementById('poi-coords-display').textContent='No pin placed yet - tap the map';
+  if (poiPickMarker){ poiPickMap.removeLayer(poiPickMarker); poiPickMarker=null; }
+};
+window.useMyLocationPOI = function() {
+  navigator.geolocation.getCurrentPosition(function(p){
+    setPoiPin(p.coords.latitude,p.coords.longitude);
+    if (poiPickMap) poiPickMap.setView([p.coords.latitude,p.coords.longitude],16);
+  },function(){ toast('Could not get location'); });
+};
+
 async function initDB() {
-  const snap = await get(ref(db,'config'));
+  var snap = await get(ref(db,'config'));
   if (!snap.exists()) {
     await set(ref(db,'config'),{
       adminPin:'1234', activeEvent:'waikato',
@@ -776,53 +790,54 @@ async function initDB() {
       rescueBoats:{R1:{name:'Tom Reid',pin:'1111',color:'#7c3aed'},R2:{name:'Lena Park',pin:'2222',color:'#0891b2'}}
     });
   }
-  const cfg = (await get(ref(db,'config'))).val();
+  var cfg = (await get(ref(db,'config'))).val();
   appState.adminPin = cfg.adminPin||'1234';
-  appState.settings = {...appState.settings,...(cfg.settings||{})};
+  appState.settings = Object.assign({},appState.settings,cfg.settings||{});
   appState.coordinators = cfg.coordinators||{};
   appState.rescueBoats = cfg.rescueBoats||{};
-  const activeId = cfg.activeEvent||'waikato';
+  var activeId = cfg.activeEvent||'waikato';
   appState.currentEvent = activeId;
-  const trips = cfg.trips||{};
-  const activeName = trips[activeId]?trips[activeId].name:activeId;
+  var trips = cfg.trips||{};
+  var activeName = trips[activeId]?trips[activeId].name:activeId;
   document.getElementById('active-event-label').textContent = activeName;
   document.getElementById('active-event-name').textContent = activeName;
-  // persist event name so it shows immediately on next load
-  try { localStorage.setItem('bt_active_event_name', activeName); localStorage.setItem('bt_active_event_id', activeId); } catch(e){}
+  try { localStorage.setItem('bt_event_name',activeName); localStorage.setItem('bt_event_id',activeId); } catch(e){}
   populateDropdowns();
-  renderAdminCoords(); renderAdminRescue(); renderAdminTrips(trips);
+  renderAdminCoords();
+  renderAdminRescue();
+  renderAdminTrips(trips);
   applySettings();
   loadBoatsForParticipant(activeId);
-  // restore session
-  const session = loadSession();
+  var session = loadSession();
   if (session) restoreSession(session);
 }
 
 function loadBoatsForParticipant(eventId) {
-  onValue(ref(db,'events/'+eventId+'/boats'), snap => {
-    const boats=snap.val()||{};
-    const sel=document.getElementById('p-boat-sel');
-    const cur=sel.value;
-    sel.innerHTML='<option value="">— select your boat —</option>';
-    Object.entries(boats).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).forEach(([num,b])=>{
-      const o=document.createElement('option'); o.value=num;
-      o.textContent='Boat '+num+(b.name?' — '+b.name:''); sel.appendChild(o);
+  onValue(ref(db,'events/'+eventId+'/boats'), function(snap) {
+    var boats=snap.val()||{};
+    var sel=document.getElementById('p-boat-sel');
+    var cur=sel.value;
+    sel.innerHTML='<option value="">&#x2014; select your boat &#x2014;</option>';
+    Object.entries(boats).sort(function(a,b){ return parseInt(a[0])-parseInt(b[0]); }).forEach(function(entry){
+      var num=entry[0], b=entry[1];
+      var o=document.createElement('option'); o.value=num;
+      o.textContent='Boat '+num+(b.name?' - '+b.name:''); sel.appendChild(o);
     });
     if (cur) sel.value=cur;
   });
 }
 
 function populateDropdowns() {
-  const cu=document.getElementById('coord-user-sel');
-  cu.innerHTML='<option value="">— select coordinator —</option>';
-  Object.entries(appState.coordinators).forEach(([id,c])=>{ const o=document.createElement('option'); o.value=id; o.textContent=id+' — '+c.name; cu.appendChild(o); });
-  const rs=document.getElementById('rescue-sel');
-  rs.innerHTML='<option value="">— select rescue boat —</option>';
-  Object.entries(appState.rescueBoats).forEach(([id,r])=>{ const o=document.createElement('option'); o.value=id; o.textContent=id+(r.name?' — '+r.name:''); rs.appendChild(o); });
+  var cu=document.getElementById('coord-user-sel');
+  cu.innerHTML='<option value="">&#x2014; select coordinator &#x2014;</option>';
+  Object.entries(appState.coordinators).forEach(function(e){ var o=document.createElement('option'); o.value=e[0]; o.textContent=e[0]+' - '+e[1].name; cu.appendChild(o); });
+  var rs=document.getElementById('rescue-sel');
+  rs.innerHTML='<option value="">&#x2014; select rescue boat &#x2014;</option>';
+  Object.entries(appState.rescueBoats).forEach(function(e){ var o=document.createElement('option'); o.value=e[0]; o.textContent=e[0]+(e[1].name?' - '+e[1].name:''); rs.appendChild(o); });
 }
 
 function applySettings() {
-  const s=appState.settings;
+  var s=appState.settings;
   document.getElementById('set-rescue-num').value=s.rescueNum||'';
   document.getElementById('set-interval').value=s.interval||180;
   document.getElementById('set-test-interval').value=s.testInterval||5;
@@ -833,115 +848,183 @@ function applySettings() {
 }
 
 function renderAdminCoords() {
-  const el=document.getElementById('coord-list-admin');
-  const entries=Object.entries(appState.coordinators);
+  var el=document.getElementById('coord-list-admin');
+  var entries=Object.entries(appState.coordinators);
   if (!entries.length){el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No coordinators added</div>';return;}
-  el.innerHTML=entries.map(([id,c])=>`<div class="row"><span style="font-weight:600;min-width:40px;">${id}</span><span style="flex:1;color:var(--muted);">${c.name||'—'}</span><button class="btn btn-sm" onclick="deleteCoord('${id}')">Remove</button></div>`).join('');
+  el.innerHTML=entries.map(function(e){ return '<div class="row"><span style="font-weight:600;min-width:40px;">'+e[0]+'</span><span style="flex:1;color:var(--muted);">'+(e[1].name||'&#x2014;')+'</span><button class="btn btn-sm" data-cid="'+e[0]+'" onclick="deleteCoord(this.dataset.cid)">Remove</button></div>'; }).join('');
 }
 function renderAdminRescue() {
-  const el=document.getElementById('rescue-list-admin');
-  const entries=Object.entries(appState.rescueBoats);
+  var el=document.getElementById('rescue-list-admin');
+  var entries=Object.entries(appState.rescueBoats);
   if (!entries.length){el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No rescue boats added</div>';return;}
-  el.innerHTML=entries.map(([id,r],i)=>`<div class="row"><span style="width:11px;height:11px;border-radius:50%;background:${r.color||RESCUE_COLORS[i%RESCUE_COLORS.length]};flex-shrink:0;display:inline-block;"></span><span style="font-weight:600;min-width:40px;margin-left:4px;">${id}</span><span style="flex:1;color:var(--muted);">${r.name||'—'}</span><button class="btn btn-sm" onclick="deleteRescue('${id}')">Remove</button></div>`).join('');
+  el.innerHTML=entries.map(function(e,i){ return '<div class="row"><span style="width:11px;height:11px;border-radius:50%;background:'+(e[1].color||RESCUE_COLORS[i%RESCUE_COLORS.length])+';flex-shrink:0;display:inline-block;"></span><span style="font-weight:600;min-width:40px;margin-left:4px;">'+e[0]+'</span><span style="flex:1;color:var(--muted);">'+(e[1].name||'&#x2014;')+'</span><button class="btn btn-sm" data-rid="'+e[0]+'" onclick="deleteRescue(this.dataset.rid)">Remove</button></div>'; }).join('');
 }
 function renderAdminTrips(trips) {
-  const el=document.getElementById('trips-list-admin');
-  const entries=Object.entries(trips||{});
+  var el=document.getElementById('trips-list-admin');
+  var entries=Object.entries(trips||{});
   if (!entries.length){el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No trips</div>';return;}
-  el.innerHTML=entries.map(([id,t])=>{
-    const safeName=t.name.replace(/'/g,"\\'");
-    return `<div class="row"><span style="flex:1;font-size:13px;">${t.name}</span><span style="font-size:11px;color:var(--muted);margin-right:8px;">${t.date||''}</span><button class="btn btn-sm" style="color:var(--red);border-color:var(--red);" data-tripid="${id}" onclick="window.deleteTrip(this.dataset.tripid)">Delete</button></div>`;
-  }).join('');
-  const ae=document.getElementById('set-active-event');
-  ae.innerHTML=entries.map(([id,t])=>`<option value="${id}"${id===appState.currentEvent?' selected':''}>${t.name}</option>`).join('');
+  el.innerHTML=entries.map(function(e){ return '<div class="row"><span style="flex:1;font-size:13px;">'+e[1].name+'</span><span style="font-size:11px;color:var(--muted);margin-right:8px;">'+(e[1].date||'')+'</span><button class="btn btn-sm" style="color:var(--red);border-color:var(--red);" data-tid="'+e[0]+'" onclick="deleteTrip(this.dataset.tid)">Delete</button></div>'; }).join('');
+  var ae=document.getElementById('set-active-event');
+  ae.innerHTML=entries.map(function(e){ return '<option value="'+e[0]+'"'+(e[0]===appState.currentEvent?' selected':'')+'>'+e[1].name+'</option>'; }).join('');
+}
+function renderRescueListForCoord(rescues) {
+  rescues = rescues || {};
+  var entries=Object.entries(appState.rescueBoats);
+  var el=document.getElementById('rescue-list-coord');
+  if (!entries.length){el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No rescue boats configured</div>';return;}
+  el.innerHTML=entries.map(function(e){ var live=rescues[e[0]]; return '<div class="row"><span style="width:11px;height:11px;border-radius:50%;background:'+(e[1].color||'#7c3aed')+';flex-shrink:0;display:inline-block;"></span><span style="font-weight:600;min-width:40px;margin-left:4px;">'+e[0]+'</span><span style="flex:1;color:var(--muted);">'+(e[1].name||'&#x2014;')+'</span><span class="dot '+(live?signalClass(live.ts):'dot-off')+'"></span></div>'; }).join('');
 }
 
-// PARTICIPANT
-window.showPinBox = () => {
-  const v=document.getElementById('p-boat-sel').value;
+window.showPinBox = function() {
+  var v=document.getElementById('p-boat-sel').value;
   document.getElementById('p-pin-wrap').style.display=v?'block':'none';
   document.getElementById('p-err').style.display='none';
   document.getElementById('p-pin').value='';
 };
-window.joinParticipant = () => {
-  const boat=document.getElementById('p-boat-sel').value;
-  const pin=document.getElementById('p-pin').value;
-  const expected=getBoatPin(boat);
+window.joinParticipant = function() {
+  var boat=document.getElementById('p-boat-sel').value;
+  var pin=document.getElementById('p-pin').value;
+  var expected=getBoatPin(boat);
   if (pin===expected) {
     appState.role='participant'; appState.boatId=boat;
     document.getElementById('p-label').textContent='Boat '+boat;
     document.getElementById('p-err').style.display='none';
     saveSession({role:'participant',boatId:boat,currentEvent:appState.currentEvent});
-    show('s-participant'); pTab('status',null);
+    show('s-participant'); pTab('status');
     startParticipantTracking(boat);
   } else { document.getElementById('p-err').style.display='block'; }
 };
+window.logoutParticipant = function() {
+  clearSession();
+  if (appState.watchId) navigator.geolocation.clearWatch(appState.watchId);
+  clearInterval(appState.updateInterval);
+  appState.role=null; appState.boatId=null; appState.sosActive=false;
+  document.getElementById('sos-active-section').style.display='block';
+  document.getElementById('sos-sent-section').style.display='none';
+  document.getElementById('sos-cancelled-section').style.display='none';
+  document.getElementById('rescue-coming-wrap').style.display='none';
+  document.getElementById('p-pin-wrap').style.display='none';
+  document.getElementById('p-boat-sel').value='';
+  show('s-welcome');
+};
 
-let lastLat=null, lastLng=null;
-function startParticipantTracking(boatId) {
-  startGPS((lat,lng)=>{ lastLat=lat; lastLng=lng; });
-  const pushLoc=()=>{
-    if (lastLat===null) return;
-    get(ref(db,'events/'+appState.currentEvent+'/boats/'+boatId)).then(snap=>{
-      const d=snap.val()||{};
-      update(ref(db,'events/'+appState.currentEvent+'/boats/'+boatId),{lat:lastLat,lng:lastLng,ts:Date.now(),sos:d.sos||false});
-      document.getElementById('p-coords').textContent=lastLat.toFixed(4)+'° S, '+Math.abs(lastLng).toFixed(4)+'° E';
-      if (pMainMap && pMainMyMarker) pMainMyMarker.setLatLng([lastLat,lastLng]);
+var lastLat=null, lastLng=null;
+// track last push timestamp for "updated X ago" label
+var lastPushTs = null;
+var pUpdateLabelInterval = null;
+
+function updatePLocationLabel() {
+  if (!lastPushTs) return;
+  var s = Math.floor((Date.now()-lastPushTs)/1000);
+  var txt;
+  if (s < 15) txt = 'Location updated just now';
+  else if (s < 60) txt = 'Location updated ' + s + 's ago';
+  else txt = 'Location updated ' + Math.floor(s/60) + ' min ago';
+  document.getElementById('p-coords').textContent = txt;
+  // also update map popup if open
+  if (pMainMyMarker) pMainMyMarker.setPopupContent(txt);
+}
+
+function updatePOIsOnMap() {
+  // load POIs onto participant map — called whenever map is ready
+  onValue(ref(db,'events/'+appState.currentEvent+'/pois'), function(snap){
+    var pois=snap.val()||{};
+    if (!pMainMap) return;
+    Object.entries(pois).forEach(function(e){
+      if (!e[1].lat) return;
+      var icon=makePoiIcon(POI_ICONS[e[1].type]||'📌',POI_COLORS[e[1].type]||'#888');
+      if (!pMainPoiMarkers[e[0]]) {
+        pMainPoiMarkers[e[0]]=L.marker([e[1].lat,e[1].lng],{icon:icon}).bindPopup('<b>'+e[1].name+'</b>').addTo(pMainMap);
+      } else pMainPoiMarkers[e[0]].setLatLng([e[1].lat,e[1].lng]);
     });
-  };
+    Object.keys(pMainPoiMarkers).forEach(function(id){
+      if (!pois[id]&&pMainMap) { pMainMap.removeLayer(pMainPoiMarkers[id]); delete pMainPoiMarkers[id]; }
+    });
+  });
+}
+
+function startParticipantTracking(boatId) {
+  startGPS(function(lat,lng){ lastLat=lat; lastLng=lng; });
+
+  function pushLoc(){
+    if (lastLat===null) return;
+    get(ref(db,'events/'+appState.currentEvent+'/boats/'+boatId)).then(function(snap){
+      var d=snap.val()||{};
+      update(ref(db,'events/'+appState.currentEvent+'/boats/'+boatId),
+        {lat:lastLat,lng:lastLng,ts:Date.now(),sos:d.sos||false});
+      lastPushTs = Date.now();
+      updatePLocationLabel();
+      // update my marker on map
+      if (pMainMap) {
+        if (!pMainMyMarker) {
+          pMainMyMarker=L.marker([lastLat,lastLng],{icon:makeBoatIcon('Me','#27ae60'),zIndexOffset:1000})
+            .bindPopup('Location updated just now').addTo(pMainMap);
+          pMainMap.setView([lastLat,lastLng],14);
+        } else {
+          pMainMyMarker.setLatLng([lastLat,lastLng]);
+        }
+      }
+    });
+  }
+
   pushLoc();
   if (appState.updateInterval) clearInterval(appState.updateInterval);
   appState.updateInterval=setInterval(pushLoc, getInterval());
 
-  // listen for POIs to show on participant map
-  onValue(ref(db,'events/'+appState.currentEvent+'/pois'), snap=>{
-    const pois=snap.val()||{};
-    if (!pMainMap) return;
-    Object.entries(pois).forEach(([id,p])=>{
-      if (!p.lat) return;
-      const icon=makePoiIcon(POI_ICONS[p.type]||'📌',POI_COLORS[p.type]||'#888');
-      if (!pMainPoiMarkers[id]) { pMainPoiMarkers[id]=L.marker([p.lat,p.lng],{icon}).bindPopup(`<b>${p.name}</b>`).addTo(pMainMap); }
-      else pMainPoiMarkers[id].setLatLng([p.lat,p.lng]);
-    });
-    Object.keys(pMainPoiMarkers).forEach(id=>{ if(!pois[id]&&pMainMap){pMainMap.removeLayer(pMainPoiMarkers[id]);delete pMainPoiMarkers[id];} });
-  });
+  // update the "X min ago" label every 15 seconds
+  if (pUpdateLabelInterval) clearInterval(pUpdateLabelInterval);
+  pUpdateLabelInterval = setInterval(updatePLocationLabel, 15000);
 
-  onValue(ref(db,'events/'+appState.currentEvent+'/boats/'+boatId+'/sosAck'), snap=>{
-    if (snap.val()) document.getElementById('rescue-coming-wrap').style.display='block';
-  });
-  onValue(ref(db,'events/'+appState.currentEvent+'/rescueLocations'), snap=>{
-    if (!lastLat) return;
-    const rescues=snap.val()||{};
-    const dist=appState.settings.rescueDist||500;
-    Object.entries(rescues).forEach(([rid,r])=>{
-      if (!r.lat) return;
-      const d=haversine(lastLat,lastLng,r.lat,r.lng);
-      if (d<dist) {
-        document.getElementById('rescue-coming-wrap').style.display='block';
-        if (pMainMap) {
-          const color=appState.rescueBoats[rid]?appState.rescueBoats[rid].color:'#7c3aed';
-          if (!pMainRescueMarkers[rid]) { pMainRescueMarkers[rid]=L.marker([r.lat,r.lng],{icon:makeBoatIcon(rid,color)}).bindPopup('Rescue '+rid).addTo(pMainMap); }
-          else pMainRescueMarkers[rid].setLatLng([r.lat,r.lng]);
+  // load POIs (no other boats shown)
+  updatePOIsOnMap();
+
+  // listen for assigned rescue boat only — show on map only when SOS is active
+  // and a specific rescue boat has been assigned to this boat
+  onValue(ref(db,'events/'+appState.currentEvent+'/boats/'+boatId), function(snap){
+    var boat = snap.val()||{};
+    var assignedRescue = boat.rescueId||null;
+    var sosActive = boat.sos||false;
+    var sosAck = boat.sosAck||false;
+
+    // show rescue coming banner if SOS acknowledged
+    if (sosAck && sosActive) {
+      document.getElementById('rescue-coming-wrap').style.display='block';
+    }
+
+    // only show assigned rescue boat on map when SOS is active and acknowledged
+    if (sosActive && sosAck && assignedRescue) {
+      onValue(ref(db,'events/'+appState.currentEvent+'/rescueLocations/'+assignedRescue), function(rsnap){
+        var r = rsnap.val();
+        if (!r||!r.lat||!pMainMap) return;
+        var color = appState.rescueBoats[assignedRescue]?appState.rescueBoats[assignedRescue].color:'#7c3aed';
+        if (!pMainRescueMarkers[assignedRescue]) {
+          pMainRescueMarkers[assignedRescue]=L.marker([r.lat,r.lng],{icon:makeBoatIcon(assignedRescue,color)})
+            .bindPopup('Rescue '+assignedRescue+' — on the way').addTo(pMainMap);
+        } else {
+          pMainRescueMarkers[assignedRescue].setLatLng([r.lat,r.lng]);
         }
-      }
-    });
-    // update my marker on participant map
-    if (pMainMap) {
-      if (!pMainMyMarker) {
-        pMainMyMarker=L.marker([lastLat,lastLng],{icon:makeBoatIcon('Me','#27ae60'),zIndexOffset:1000}).bindPopup('Your location').addTo(pMainMap);
-        pMainMap.setView([lastLat,lastLng],14);
-      } else pMainMyMarker.setLatLng([lastLat,lastLng]);
+        // fit map to show both participant and rescue boat
+        if (lastLat) {
+          var bounds = L.latLngBounds([[lastLat,lastLng],[r.lat,r.lng]]);
+          pMainMap.fitBounds(bounds.pad(0.3));
+        }
+      });
+    } else {
+      // remove any rescue markers if SOS cancelled
+      Object.keys(pMainRescueMarkers).forEach(function(rid){
+        if (pMainMap) pMainMap.removeLayer(pMainRescueMarkers[rid]);
+        delete pMainRescueMarkers[rid];
+      });
     }
   });
 }
 
-// SOS
-window.startSOS = e => {
+window.startSOS = function(e) {
   if (e) e.preventDefault();
   if (appState.sosActive) return;
   appState.sosPct=0;
-  const bar=document.getElementById('hold-bar');
-  appState.sosInterval=setInterval(()=>{
+  var bar=document.getElementById('hold-bar');
+  appState.sosInterval=setInterval(function(){
     appState.sosPct+=3.4; bar.style.width=Math.min(appState.sosPct,100)+'%';
     if (appState.sosPct>=100) {
       clearInterval(appState.sosInterval); appState.sosActive=true; bar.style.width='0%';
@@ -953,16 +1036,15 @@ window.startSOS = e => {
     }
   },100);
 };
-window.cancelSOS = ()=>{ clearInterval(appState.sosInterval); if(!appState.sosActive) document.getElementById('hold-bar').style.width='0%'; };
-window.dismissSOS = ()=>{ document.getElementById('sos-sent-section').style.display='none'; };
-
-window.openCancelSOS = ()=>{ document.getElementById('cancel-sos-overlay').style.display='flex'; };
-window.closeCancelSOS = ()=>{ document.getElementById('cancel-sos-overlay').style.display='none'; stopCancelSOS(); };
-window.startCancelSOS = e => {
+window.cancelSOS = function(){ clearInterval(appState.sosInterval); if(!appState.sosActive) document.getElementById('hold-bar').style.width='0%'; };
+window.dismissSOS = function(){ document.getElementById('sos-sent-section').style.display='none'; };
+window.openCancelSOS = function(){ document.getElementById('cancel-sos-overlay').style.display='flex'; };
+window.closeCancelSOS = function(){ document.getElementById('cancel-sos-overlay').style.display='none'; stopCancelSOS(); };
+window.startCancelSOS = function(e) {
   if (e) e.preventDefault();
   appState.cancelSosPct=0;
-  const bar=document.getElementById('cancel-hold-bar');
-  appState.cancelSosInterval=setInterval(()=>{
+  var bar=document.getElementById('cancel-hold-bar');
+  appState.cancelSosInterval=setInterval(function(){
     appState.cancelSosPct+=3.4; bar.style.width=Math.min(appState.cancelSosPct,100)+'%';
     if (appState.cancelSosPct>=100) {
       clearInterval(appState.cancelSosInterval); bar.style.width='0%';
@@ -977,13 +1059,12 @@ window.startCancelSOS = e => {
     }
   },100);
 };
-window.stopCancelSOS = ()=>{ clearInterval(appState.cancelSosInterval); document.getElementById('cancel-hold-bar').style.width='0%'; };
+window.stopCancelSOS = function(){ clearInterval(appState.cancelSosInterval); document.getElementById('cancel-hold-bar').style.width='0%'; };
 
-// RESCUE
-window.loginRescue = ()=>{
-  const id=document.getElementById('rescue-sel').value;
-  const pin=document.getElementById('rescue-pin').value;
-  const rb=appState.rescueBoats[id];
+window.loginRescue = function() {
+  var id=document.getElementById('rescue-sel').value;
+  var pin=document.getElementById('rescue-pin').value;
+  var rb=appState.rescueBoats[id];
   if (rb && pin===rb.pin) {
     appState.role='rescue'; appState.rescueId=id;
     document.getElementById('rescue-label').textContent='Rescue '+id;
@@ -995,21 +1076,7 @@ window.loginRescue = ()=>{
     listenSOSForRescue();
   } else { document.getElementById('rescue-err').style.display='block'; }
 };
-window.logoutParticipant = ()=>{
-  clearSession();
-  if (appState.watchId) navigator.geolocation.clearWatch(appState.watchId);
-  clearInterval(appState.updateInterval);
-  appState.role=null; appState.boatId=null;
-  appState.sosActive=false;
-  document.getElementById('sos-active-section').style.display='block';
-  document.getElementById('sos-sent-section').style.display='none';
-  document.getElementById('sos-cancelled-section').style.display='none';
-  document.getElementById('rescue-coming-wrap').style.display='none';
-  document.getElementById('p-pin-wrap').style.display='none';
-  document.getElementById('p-boat-sel').value='';
-  show('s-welcome');
-};
-window.logoutRescue = ()=>{
+window.logoutRescue = function() {
   clearSession();
   if (appState.watchId) navigator.geolocation.clearWatch(appState.watchId);
   clearInterval(appState.updateInterval);
@@ -1018,92 +1085,80 @@ window.logoutRescue = ()=>{
   show('s-welcome');
 };
 
-let lastRLat=null, lastRLng=null;
-let rescueFastPingInterval=null;
-
+var lastRLat=null, lastRLng=null;
+var rescueFastPingInterval=null;
 function startRescueTracking(id, color) {
-  startGPS((lat,lng)=>{ lastRLat=lat; lastRLng=lng; });
-  const push=()=>{
+  startGPS(function(lat,lng){ lastRLat=lat; lastRLng=lng; });
+  function push(){
     if (!lastRLat) return;
-    set(ref(db,'events/'+appState.currentEvent+'/rescueLocations/'+id),{lat:lastRLat,lng:lastRLng,ts:Date.now(),color});
-    document.getElementById('rescue-coords').textContent=lastRLat.toFixed(4)+'° S, '+Math.abs(lastRLng).toFixed(4)+'° E';
+    set(ref(db,'events/'+appState.currentEvent+'/rescueLocations/'+id),{lat:lastRLat,lng:lastRLng,ts:Date.now(),color:color});
+    document.getElementById('rescue-coords').textContent=lastRLat.toFixed(4)+' S, '+Math.abs(lastRLng).toFixed(4)+' E';
     if (rescueNavMap&&rescueNavMarkers['_rescue']) rescueNavMarkers['_rescue'].setLatLng([lastRLat,lastRLng]);
-  };
+  }
   push();
   if (appState.updateInterval) clearInterval(appState.updateInterval);
   appState.updateInterval=setInterval(push, getInterval());
-
-  // check proximity to SOS boats every 10 seconds for 250m fast ping
-  setInterval(()=>{
-    const boats=appState.boats||{};
-    const sosList=Object.entries(boats).filter(([,b])=>b.sos&&b.lat);
-    if (!lastRLat||!sosList.length) { clearInterval(rescueFastPingInterval); rescueFastPingInterval=null; return; }
-    const near=sosList.some(([,b])=>haversine(lastRLat,lastRLng,b.lat,b.lng)<250);
+  setInterval(function(){
+    var boats=appState.boats||{};
+    var sosList=Object.entries(boats).filter(function(e){ return e[1].sos&&e[1].lat; });
+    if (!lastRLat||!sosList.length) { if(rescueFastPingInterval){clearInterval(rescueFastPingInterval);rescueFastPingInterval=null;} return; }
+    var near=sosList.some(function(e){ return haversine(lastRLat,lastRLng,e[1].lat,e[1].lng)<250; });
     if (near && !rescueFastPingInterval) {
-      toast('Within 250m — switching to 60 second pings');
-      rescueFastPingInterval=setInterval(()=>{
+      toast('Within 250m - switching to 60 second pings');
+      rescueFastPingInterval=setInterval(function(){
         if (!lastRLat) return;
-        set(ref(db,'events/'+appState.currentEvent+'/rescueLocations/'+id),{lat:lastRLat,lng:lastRLng,ts:Date.now(),color});
+        set(ref(db,'events/'+appState.currentEvent+'/rescueLocations/'+id),{lat:lastRLat,lng:lastRLng,ts:Date.now(),color:color});
       },60000);
-    } else if (!near && rescueFastPingInterval) {
-      clearInterval(rescueFastPingInterval); rescueFastPingInterval=null;
-    }
+    } else if (!near && rescueFastPingInterval) { clearInterval(rescueFastPingInterval); rescueFastPingInterval=null; }
   },10000);
 }
-
 function listenSOSForRescue() {
-  onValue(ref(db,'events/'+appState.currentEvent+'/boats'), snap=>{
-    const boats=snap.val()||{};
+  onValue(ref(db,'events/'+appState.currentEvent+'/boats'), function(snap){
+    var boats=snap.val()||{};
     appState.boats=boats;
-    const sosList=Object.entries(boats).filter(([,b])=>b.sos);
-    const el=document.getElementById('rescue-sos-list');
+    var sosList=Object.entries(boats).filter(function(e){ return e[1].sos; });
+    var el=document.getElementById('rescue-sos-list');
     if (!sosList.length){el.innerHTML='<div class="card card-gray" style="text-align:center;color:var(--muted);font-size:14px;padding:20px;">No active SOS alerts</div>';return;}
-    el.innerHTML=sosList.map(([bid,b])=>`
-      <div class="card card-red">
-        <div style="font-weight:700;font-size:14px;color:var(--red);margin-bottom:4px;">🆘 Boat ${bid}${b.name?' — '+b.name:''}</div>
-        <div style="font-size:12px;color:#791f1f;margin-bottom:8px;">Last seen: ${timeAgo(b.ts)}<br>${b.lat?b.lat.toFixed(4)+'° S, '+Math.abs(b.lng).toFixed(4)+'° E':'Location unknown'}</div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-sm btn-primary" style="flex:1;" onclick="acknowledgeRescue('${bid}')">Responding</button>
-          <button class="btn btn-sm" style="flex:1;" onclick="navToSOS('${bid}',${b.lat||0},${b.lng||0})">Navigate</button>
-        </div>
-      </div>`).join('');
+    el.innerHTML=sosList.map(function(e){
+      var bid=e[0], b=e[1];
+      return '<div class="card card-red"><div style="font-weight:700;font-size:14px;color:var(--red);margin-bottom:4px;">SOS Boat '+bid+(b.name?' - '+b.name:'')+'</div><div style="font-size:12px;color:#791f1f;margin-bottom:8px;">Last seen: '+timeAgo(b.ts)+'<br>'+(b.lat?b.lat.toFixed(4)+' S, '+Math.abs(b.lng).toFixed(4)+' E':'Location unknown')+'</div><div style="display:flex;gap:8px;"><button class="btn btn-sm btn-primary" style="flex:1;" data-bid="'+bid+'" onclick="acknowledgeRescue(this.dataset.bid)">Responding</button><button class="btn btn-sm" style="flex:1;" data-bid="'+bid+'" data-lat="'+(b.lat||0)+'" data-lng="'+(b.lng||0)+'" onclick="navToSOS(this.dataset.bid,parseFloat(this.dataset.lat),parseFloat(this.dataset.lng))">Navigate</button></div></div>';
+    }).join('');
   });
 }
-window.acknowledgeRescue = bid=>{
+window.acknowledgeRescue = function(bid){
   update(ref(db,'events/'+appState.currentEvent+'/boats/'+bid),{sosAck:true,rescueId:appState.rescueId});
   toast('Responding to Boat '+bid);
 };
-window.navToSOS = (bid,lat,lng)=>{
+window.navToSOS = function(bid,lat,lng){
   document.getElementById('rescue-nav-map-wrap').style.display='block';
   if (!rescueNavMap) initRescueNavMap();
-  setTimeout(()=>{
+  setTimeout(function(){
     if (!rescueNavMap) return;
     rescueNavMap.invalidateSize();
-    if (!rescueNavMarkers[bid]) { rescueNavMarkers[bid]=L.marker([lat,lng],{icon:makeBoatIcon(bid,'#c0392b',true)}).bindPopup('🆘 Boat '+bid).addTo(rescueNavMap).openPopup(); }
+    if (!rescueNavMarkers[bid]) rescueNavMarkers[bid]=L.marker([lat,lng],{icon:makeBoatIcon(bid,'#c0392b',true)}).bindPopup('SOS Boat '+bid).addTo(rescueNavMap).openPopup();
     else rescueNavMarkers[bid].setLatLng([lat,lng]);
-    const color=appState.rescueBoats[appState.rescueId]?appState.rescueBoats[appState.rescueId].color:'#7c3aed';
+    var color=appState.rescueBoats[appState.rescueId]?appState.rescueBoats[appState.rescueId].color:'#7c3aed';
     if (lastRLat) {
-      if (!rescueNavMarkers['_rescue']) { rescueNavMarkers['_rescue']=L.marker([lastRLat,lastRLng],{icon:makeBoatIcon(appState.rescueId,color)}).bindPopup('You').addTo(rescueNavMap); }
+      if (!rescueNavMarkers['_rescue']) rescueNavMarkers['_rescue']=L.marker([lastRLat,lastRLng],{icon:makeBoatIcon(appState.rescueId,color)}).bindPopup('You').addTo(rescueNavMap);
       else rescueNavMarkers['_rescue'].setLatLng([lastRLat,lastRLng]);
       rescueNavMap.fitBounds(L.latLngBounds([[lat,lng],[lastRLat,lastRLng]]).pad(0.3));
     } else { rescueNavMap.setView([lat,lng],14); }
   },300);
 };
 
-// COORDINATOR
-window.loginCoord = ()=>{
-  const id=document.getElementById('coord-user-sel').value;
-  const pin=document.getElementById('coord-pin').value;
-  const c=appState.coordinators[id];
+window.loginCoord = function() {
+  var id=document.getElementById('coord-user-sel').value;
+  var pin=document.getElementById('coord-pin').value;
+  var c=appState.coordinators[id];
   if (c && pin===c.pin) {
     appState.role='coordinator'; appState.coordId=id;
     document.getElementById('coord-err').style.display='none';
     saveSession({role:'coordinator',coordId:id,currentEvent:appState.currentEvent});
     show('s-coord');
-    setTimeout(()=>{ initCoordMap(); listenAllBoats(); listenRescueForCoord(); loadPOIs(); startCoordTracking(id); },200);
+    setTimeout(function(){ initCoordMap(); listenAllBoats(); listenRescueForCoord(); loadPOIs(); startCoordTracking(id); },200);
   } else { document.getElementById('coord-err').style.display='block'; }
 };
-window.logoutCoord = ()=>{
+window.logoutCoord = function() {
   clearSession();
   if (appState.watchId) navigator.geolocation.clearWatch(appState.watchId);
   clearInterval(appState.updateInterval);
@@ -1112,25 +1167,24 @@ window.logoutCoord = ()=>{
   show('s-welcome');
 };
 
-let lastCLat=null, lastCLng=null, coordSelfMarker=null;
+var lastCLat=null, lastCLng=null, coordSelfMarker=null;
 function startCoordTracking(id) {
-  startGPS((lat,lng)=>{ lastCLat=lat; lastCLng=lng; });
-  const push=()=>{
+  startGPS(function(lat,lng){ lastCLat=lat; lastCLng=lng; });
+  function push(){
     if (!lastCLat) return;
     set(ref(db,'events/'+appState.currentEvent+'/coordLocations/'+id),{lat:lastCLat,lng:lastCLng,ts:Date.now()});
     if (coordMap) {
-      if (!coordSelfMarker) { coordSelfMarker=L.marker([lastCLat,lastCLng],{icon:makeBoatIcon('Me','#185fa5'),zIndexOffset:1000}).bindPopup('You (Coordinator)').addTo(coordMap); }
+      if (!coordSelfMarker) coordSelfMarker=L.marker([lastCLat,lastCLng],{icon:makeBoatIcon('Me','#185fa5'),zIndexOffset:1000}).bindPopup('You (Coordinator)').addTo(coordMap);
       else coordSelfMarker.setLatLng([lastCLat,lastCLng]);
     }
-  };
+  }
   push();
   if (appState.updateInterval) clearInterval(appState.updateInterval);
   appState.updateInterval=setInterval(push, getInterval());
 }
-
 function listenAllBoats() {
-  onValue(ref(db,'events/'+appState.currentEvent+'/boats'), snap=>{
-    const boats=snap.val()||{};
+  onValue(ref(db,'events/'+appState.currentEvent+'/boats'), function(snap){
+    var boats=snap.val()||{};
     appState.boats=boats;
     renderCoordBoatList(boats);
     updateCoordMapBoats(boats);
@@ -1138,243 +1192,186 @@ function listenAllBoats() {
 }
 function updateCoordMapBoats(boats) {
   if (!coordMap) return;
-  Object.entries(boats).forEach(([bid,b])=>{
+  Object.entries(boats).forEach(function(e){
+    var bid=e[0], b=e[1];
     if (!b.lat) return;
-    const color=b.sos?'#c0392b':'#27ae60';
-    const icon=makeBoatIcon(bid,color,b.sos);
-    if (!coordBoatMarkers[bid]) { coordBoatMarkers[bid]=L.marker([b.lat,b.lng],{icon}).bindPopup(`<b>Boat ${bid}</b>${b.name?'<br>'+b.name:''}<br>${timeAgo(b.ts)}${b.sos?'<br><b style="color:red">🆘 SOS</b>':''}`).addTo(coordMap); }
-    else { coordBoatMarkers[bid].setLatLng([b.lat,b.lng]).setIcon(icon); coordBoatMarkers[bid].setPopupContent(`<b>Boat ${bid}</b>${b.name?'<br>'+b.name:''}<br>${timeAgo(b.ts)}${b.sos?'<br><b style="color:red">🆘 SOS</b>':''}`); }
+    var color=b.sos?'#c0392b':'#27ae60';
+    var icon=makeBoatIcon(bid,color,b.sos);
+    if (!coordBoatMarkers[bid]) coordBoatMarkers[bid]=L.marker([b.lat,b.lng],{icon:icon}).bindPopup('<b>Boat '+bid+'</b>'+(b.name?'<br>'+b.name:'')+'<br>'+timeAgo(b.ts)+(b.sos?'<br><b style="color:red">SOS</b>':'')).addTo(coordMap);
+    else { coordBoatMarkers[bid].setLatLng([b.lat,b.lng]).setIcon(icon); coordBoatMarkers[bid].setPopupContent('<b>Boat '+bid+'</b>'+(b.name?'<br>'+b.name:'')+'<br>'+timeAgo(b.ts)+(b.sos?'<br><b style="color:red">SOS</b>':'')); }
   });
-  Object.keys(coordBoatMarkers).forEach(bid=>{ if(!boats[bid]){coordMap.removeLayer(coordBoatMarkers[bid]);delete coordBoatMarkers[bid];} });
+  Object.keys(coordBoatMarkers).forEach(function(bid){ if(!boats[bid]){coordMap.removeLayer(coordBoatMarkers[bid]);delete coordBoatMarkers[bid];} });
 }
 function renderCoordBoatList(boats) {
-  const entries=Object.entries(boats);
-  document.getElementById('stat-active').textContent=entries.filter(([,b])=>b.ts).length;
-  document.getElementById('stat-sos').textContent=entries.filter(([,b])=>b.sos).length;
+  var entries=Object.entries(boats);
+  document.getElementById('stat-active').textContent=entries.length;
+  document.getElementById('stat-sos').textContent=entries.filter(function(e){ return e[1].sos; }).length;
   document.getElementById('coord-badge').textContent=entries.length+' boats';
-  const el=document.getElementById('boat-list-coord');
+  var el=document.getElementById('boat-list-coord');
   if (!entries.length){el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No boats registered yet</div>';return;}
-  entries.sort((a,b)=>a[1].sos&&!b[1].sos?-1:!a[1].sos&&b[1].sos?1:(b[1].ts||0)-(a[1].ts||0));
-  el.innerHTML=entries.map(([bid,b])=>`<div class="row" onclick="focusBoat('${bid}',${b.lat||0},${b.lng||0})" style="cursor:pointer;"><span class="dot ${b.sos?'dot-sos':signalClass(b.ts)}"></span><span style="font-weight:600;min-width:52px;">Boat ${bid}</span><span style="flex:1;color:var(--muted);font-size:13px;">${b.name||''}</span><span style="font-size:11px;color:${b.sos?'var(--red)':'var(--muted)'};">${b.sos?'🆘 SOS':timeAgo(b.ts)}</span></div>`).join('');
-  document.getElementById('coord-sos-alerts').innerHTML=entries.filter(([,b])=>b.sos).map(([bid,b])=>`<div class="card card-red" style="margin-bottom:8px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot dot-sos"></span><div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--red);">Boat ${bid}${b.name?' — '+b.name:''} — SOS</div><div style="font-size:11px;color:#791f1f;">${timeAgo(b.ts)} · ${b.rescueId?'Rescue '+b.rescueId+' responding':'Unassigned'}</div></div><button class="btn btn-sm" style="color:var(--blue);border-color:var(--blue);" onclick="clearSOS('${bid}')">Clear</button></div></div>`).join('');
+  entries.sort(function(a,b){ return a[1].sos&&!b[1].sos?-1:!a[1].sos&&b[1].sos?1:(b[1].ts||0)-(a[1].ts||0); });
+  el.innerHTML=entries.map(function(e){
+    var bid=e[0], b=e[1];
+    return '<div class="row" style="cursor:pointer;" data-bid="'+bid+'" data-lat="'+(b.lat||0)+'" data-lng="'+(b.lng||0)+'" onclick="focusBoat(this.dataset.bid,parseFloat(this.dataset.lat),parseFloat(this.dataset.lng))"><span class="dot '+(b.sos?'dot-sos':signalClass(b.ts))+'"></span><span style="font-weight:600;min-width:52px;">Boat '+bid+'</span><span style="flex:1;color:var(--muted);font-size:13px;">'+(b.name||'')+'</span><span style="font-size:11px;color:'+(b.sos?'var(--red)':'var(--muted)')+';">'+(b.sos?'SOS':timeAgo(b.ts))+'</span></div>';
+  }).join('');
+  var sosEntries=entries.filter(function(e){ return e[1].sos; });
+  document.getElementById('coord-sos-alerts').innerHTML=sosEntries.map(function(e){
+    var bid=e[0], b=e[1];
+    return '<div class="card card-red" style="margin-bottom:8px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot dot-sos"></span><div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--red);">Boat '+bid+(b.name?' - '+b.name:'')+' - SOS</div><div style="font-size:11px;color:#791f1f;">'+timeAgo(b.ts)+' - '+(b.rescueId?'Rescue '+b.rescueId+' responding':'Unassigned')+'</div></div><button class="btn btn-sm" style="color:var(--blue);border-color:var(--blue);" data-bid="'+bid+'" onclick="clearSOS(this.dataset.bid)">Clear</button></div></div>';
+  }).join('');
 }
-window.focusBoat = (bid,lat,lng)=>{ if(!coordMap||!lat) return; coordTab('map',null); coordMap.setView([lat,lng],16); if(coordBoatMarkers[bid]) coordBoatMarkers[bid].openPopup(); };
-window.clearSOS = bid=>{ update(ref(db,'events/'+appState.currentEvent+'/boats/'+bid),{sos:false,sosAck:false,rescueId:null}); toast('SOS cleared for Boat '+bid); };
+window.focusBoat = function(bid,lat,lng){ if(!coordMap||!lat) return; coordTab('map'); coordMap.setView([lat,lng],16); if(coordBoatMarkers[bid]) coordBoatMarkers[bid].openPopup(); };
+window.clearSOS = function(bid){ update(ref(db,'events/'+appState.currentEvent+'/boats/'+bid),{sos:false,sosAck:false,rescueId:null}); toast('SOS cleared for Boat '+bid); };
 
 function listenRescueForCoord() {
-  onValue(ref(db,'events/'+appState.currentEvent+'/rescueLocations'), snap=>{
-    const rescues=snap.val()||{};
+  onValue(ref(db,'events/'+appState.currentEvent+'/rescueLocations'), function(snap){
+    var rescues=snap.val()||{};
     if (coordMap) {
-      Object.entries(rescues).forEach(([id,r])=>{
-        if (!r.lat) return;
-        const color=r.color||'#7c3aed';
-        if (!coordRescueMarkers[id]) { coordRescueMarkers[id]=L.marker([r.lat,r.lng],{icon:makeBoatIcon(id,color),zIndexOffset:500}).bindPopup(`<b>Rescue ${id}</b><br>${timeAgo(r.ts)}`).addTo(coordMap); }
-        else { coordRescueMarkers[id].setLatLng([r.lat,r.lng]); }
+      Object.entries(rescues).forEach(function(e){
+        if (!e[1].lat) return;
+        var color=e[1].color||'#7c3aed';
+        if (!coordRescueMarkers[e[0]]) coordRescueMarkers[e[0]]=L.marker([e[1].lat,e[1].lng],{icon:makeBoatIcon(e[0],color),zIndexOffset:500}).bindPopup('<b>Rescue '+e[0]+'</b><br>'+timeAgo(e[1].ts)).addTo(coordMap);
+        else coordRescueMarkers[e[0]].setLatLng([e[1].lat,e[1].lng]);
       });
-      Object.keys(coordRescueMarkers).forEach(id=>{ if(!rescues[id]){coordMap.removeLayer(coordRescueMarkers[id]);delete coordRescueMarkers[id];} });
+      Object.keys(coordRescueMarkers).forEach(function(id){ if(!rescues[id]){coordMap.removeLayer(coordRescueMarkers[id]);delete coordRescueMarkers[id];} });
     }
-    document.getElementById('rescue-legend').innerHTML=Object.entries(rescues).map(([id,r])=>`<span class="rescue-color" style="background:${(r.color||'#7c3aed')}33;color:${r.color||'#7c3aed'};font-size:11px;padding:3px 8px;"><span style="width:8px;height:8px;border-radius:50%;background:${r.color||'#7c3aed'};display:inline-block;"></span>${id}</span>`).join('');
-    // Always render from config, not from live locations
+    document.getElementById('rescue-legend').innerHTML=Object.entries(rescues).map(function(e){ return '<span class="rescue-color" style="background:'+((e[1].color||'#7c3aed')+'33')+';color:'+(e[1].color||'#7c3aed')+';font-size:11px;padding:3px 8px;"><span style="width:8px;height:8px;border-radius:50%;background:'+(e[1].color||'#7c3aed')+';display:inline-block;"></span>'+e[0]+'</span>'; }).join('');
     renderRescueListForCoord(rescues);
   });
 }
-
-function renderRescueListForCoord(rescues) {
-  rescues = rescues || {};
-  const entries = Object.entries(appState.rescueBoats);
-  const el = document.getElementById('rescue-list-coord');
-  if (!entries.length) { el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No rescue boats configured</div>'; return; }
-  el.innerHTML = entries.map(([id,r]) => {
-    const live = rescues[id];
-    return `<div class="row">
-      <span style="width:11px;height:11px;border-radius:50%;background:${r.color||'#7c3aed'};flex-shrink:0;display:inline-block;"></span>
-      <span style="font-weight:600;min-width:40px;margin-left:4px;">${id}</span>
-      <span style="flex:1;color:var(--muted);">${r.name||'—'}</span>
-      <span class="dot ${live?signalClass(live.ts):'dot-off'}"></span>
-    </div>`;
-  }).join('');
-}
-
 function loadPOIs() {
-  onValue(ref(db,'events/'+appState.currentEvent+'/pois'), snap=>{
-    const pois=snap.val()||{};
+  onValue(ref(db,'events/'+appState.currentEvent+'/pois'), function(snap){
+    var pois=snap.val()||{};
     if (coordMap) {
-      Object.entries(pois).forEach(([id,p])=>{
-        if (!p.lat) return;
-        const icon=makePoiIcon(POI_ICONS[p.type]||'📌',POI_COLORS[p.type]||'#888');
-        if (!coordPoiMarkers[id]) { coordPoiMarkers[id]=L.marker([p.lat,p.lng],{icon}).bindPopup(`<b>${p.name}</b>`).addTo(coordMap); }
-        else coordPoiMarkers[id].setLatLng([p.lat,p.lng]);
+      Object.entries(pois).forEach(function(e){
+        if (!e[1].lat) return;
+        var icon=makePoiIcon(POI_ICONS[e[1].type]||'*',POI_COLORS[e[1].type]||'#888');
+        if (!coordPoiMarkers[e[0]]) coordPoiMarkers[e[0]]=L.marker([e[1].lat,e[1].lng],{icon:icon}).bindPopup('<b>'+e[1].name+'</b>').addTo(coordMap);
+        else coordPoiMarkers[e[0]].setLatLng([e[1].lat,e[1].lng]);
       });
-      Object.keys(coordPoiMarkers).forEach(id=>{ if(!pois[id]){coordMap.removeLayer(coordPoiMarkers[id]);delete coordPoiMarkers[id];} });
+      Object.keys(coordPoiMarkers).forEach(function(id){ if(!pois[id]){coordMap.removeLayer(coordPoiMarkers[id]);delete coordPoiMarkers[id];} });
     }
-    const el=document.getElementById('poi-list-coord');
-    const entries=Object.entries(pois);
+    var el=document.getElementById('poi-list-coord');
+    var entries=Object.entries(pois);
     if (!entries.length){el.innerHTML='<div style="text-align:center;padding:12px;color:var(--muted);">No POIs added</div>';return;}
-    el.innerHTML=entries.map(([id,p])=>`<div class="row"><span>${POI_ICONS[p.type]||'📌'}</span><span style="flex:1;font-size:13px;">${p.name}</span><button class="btn btn-sm" onclick="deletePOI('${id}')">Remove</button></div>`).join('');
+    el.innerHTML=entries.map(function(e){ return '<div class="row"><span>'+(POI_ICONS[e[1].type]||'*')+'</span><span style="flex:1;font-size:13px;">'+e[1].name+'</span><button class="btn btn-sm" data-pid="'+e[0]+'" onclick="deletePOI(this.dataset.pid)">Remove</button></div>'; }).join('');
   });
 }
-
-window.coordTab = (tab)=>{
-  ['map','boats','rescue','poi'].forEach(t=>{ const el=document.getElementById('c-'+t+'-tab'); if(el) el.style.display=t===tab?'flex':'none'; });
-  if (tab==='map'&&coordMap) setTimeout(()=>coordMap.invalidateSize(),100);
+window.coordTab = function(tab){
+  ['map','boats','rescue','poi'].forEach(function(t){ var el=document.getElementById('c-'+t+'-tab'); if(el) el.style.display=t===tab?'flex':'none'; });
+  if (tab==='map'&&coordMap) setTimeout(function(){ coordMap.invalidateSize(); },100);
 };
-window.registerBoat = async ()=>{
-  const num=document.getElementById('new-boat-num').value.trim();
-  const name=document.getElementById('new-boat-name').value.trim();
-  const phone=document.getElementById('new-boat-phone').value.trim();
+window.registerBoat = async function() {
+  var num=document.getElementById('new-boat-num').value.trim();
+  var name=document.getElementById('new-boat-name').value.trim();
+  var phone=document.getElementById('new-boat-phone').value.trim();
   if (!num){toast('Enter a boat number');return;}
-  await set(ref(db,'events/'+appState.currentEvent+'/boats/'+num),{name,phone,registered:true,ts:null,sos:false,sosAck:false});
-  // manually refresh boat list in case listener hasn't fired
-  const snap=await get(ref(db,'events/'+appState.currentEvent+'/boats'));
-  const boats=snap.val()||{};
+  await set(ref(db,'events/'+appState.currentEvent+'/boats/'+num),{name:name,phone:phone,registered:true,ts:null,sos:false,sosAck:false});
+  var snap=await get(ref(db,'events/'+appState.currentEvent+'/boats'));
+  var boats=snap.val()||{};
   appState.boats=boats;
   renderCoordBoatList(boats);
-  // also update participant dropdown
-  const sel=document.getElementById('p-boat-sel');
-  if (![...sel.options].some(o=>o.value===num)){
-    const o=document.createElement('option');o.value=num;
-    o.textContent='Boat '+num+(name?' — '+name:'');sel.appendChild(o);
-  }
   toast('Boat '+num+' registered!');
-  ['new-boat-num','new-boat-name','new-boat-phone'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('new-boat-num').value='';
+  document.getElementById('new-boat-name').value='';
+  document.getElementById('new-boat-phone').value='';
   show('s-coord');
   coordTab('boats');
 };
-let poiPickMap=null, poiPickStreetLayer=null, poiPickSatLayer=null, poiPickMarker=null;
-function initPoiPickMap() {
-  if (poiPickMap) { setTimeout(()=>poiPickMap.invalidateSize(),100); return; }
-  const center = lastCLat ? [lastCLat,lastCLng] : DEFAULT_CENTER;
-  poiPickMap = L.map('poi-pick-map',{zoomControl:true}).setView(center, 14);
-  poiPickStreetLayer = L.tileLayer(TILES.street,{attribution:ATTR_STREET,maxZoom:19}).addTo(poiPickMap);
-  poiPickSatLayer = L.tileLayer(TILES.sat,{attribution:ATTR_SAT,maxZoom:19});
-  // auto-centre on GPS
-  navigator.geolocation.getCurrentPosition(p=>{
-    poiPickMap.setView([p.coords.latitude,p.coords.longitude],15);
-  },()=>{},{enableHighAccuracy:true,timeout:6000});
-  poiPickMap.on('click', e=>{ setPoiPin(e.latlng.lat, e.latlng.lng); });
-  setTimeout(()=>poiPickMap.invalidateSize(),200);
-}
-function setPoiPin(lat,lng) {
-  document.getElementById('poi-lat').value=lat.toFixed(6);
-  document.getElementById('poi-lng').value=lng.toFixed(6);
-  document.getElementById('poi-coords-display').textContent=lat.toFixed(5)+'° , '+lng.toFixed(5)+'°';
-  if (poiPickMarker) poiPickMarker.setLatLng([lat,lng]);
-  else { poiPickMarker=L.marker([lat,lng],{draggable:true}).addTo(poiPickMap); poiPickMarker.on('dragend',e=>{ const ll=e.target.getLatLng(); setPoiPin(ll.lat,ll.lng); }); }
-}
-window.togglePoiMap = mode=>{
-  if (!poiPickMap) return;
-  if (mode==='street'){poiPickMap.removeLayer(poiPickSatLayer);poiPickStreetLayer.addTo(poiPickMap);}
-  else{poiPickMap.removeLayer(poiPickStreetLayer);poiPickSatLayer.addTo(poiPickMap);}
-  document.getElementById('poi-map-street').className=mode==='street'?'active':'';
-  document.getElementById('poi-map-sat').className=mode==='sat'?'active':'';
-};
-window.clearPoiPin = ()=>{
-  document.getElementById('poi-lat').value='';
-  document.getElementById('poi-lng').value='';
-  document.getElementById('poi-coords-display').textContent='No pin placed yet — tap the map';
-  if (poiPickMarker){poiPickMap.removeLayer(poiPickMarker);poiPickMarker=null;}
-};
-window.useMyLocationPOI = ()=>{
-  navigator.geolocation.getCurrentPosition(p=>{
-    setPoiPin(p.coords.latitude,p.coords.longitude);
-    if (poiPickMap) poiPickMap.setView([p.coords.latitude,p.coords.longitude],16);
-  },()=>toast('Could not get location'));
-};
-window.savePOI = ()=>{
-  const name=document.getElementById('poi-name').value.trim();
-  const type=document.getElementById('poi-type').value;
-  const lat=parseFloat(document.getElementById('poi-lat').value)||null;
-  const lng=parseFloat(document.getElementById('poi-lng').value)||null;
+window.savePOI = function() {
+  var name=document.getElementById('poi-name').value.trim();
+  var type=document.getElementById('poi-type').value;
+  var lat=parseFloat(document.getElementById('poi-lat').value)||null;
+  var lng=parseFloat(document.getElementById('poi-lng').value)||null;
   if (!name){toast('Enter a POI name');return;}
   if (!lat||!lng){toast('Place a pin on the map first');return;}
-  const nr=push(ref(db,'events/'+appState.currentEvent+'/pois'));
-  set(nr,{name,type,lat,lng,ts:Date.now()});
+  var nr=push(ref(db,'events/'+appState.currentEvent+'/pois'));
+  set(nr,{name:name,type:type,lat:lat,lng:lng,ts:Date.now()});
   toast('POI saved!');
   document.getElementById('poi-name').value='';
   document.getElementById('poi-lat').value='';
   document.getElementById('poi-lng').value='';
-  document.getElementById('poi-coords-display').textContent='No pin placed yet — tap the map';
+  document.getElementById('poi-coords-display').textContent='No pin placed yet - tap the map';
   if (poiPickMarker){poiPickMap.removeLayer(poiPickMarker);poiPickMarker=null;}
   show('s-coord');
 };
-window.deletePOI = id=>{ if(coordPoiMarkers[id]){coordMap.removeLayer(coordPoiMarkers[id]);delete coordPoiMarkers[id];} remove(ref(db,'events/'+appState.currentEvent+'/pois/'+id)); toast('POI removed'); };
+window.deletePOI = function(id){ if(coordPoiMarkers[id]){coordMap.removeLayer(coordPoiMarkers[id]);delete coordPoiMarkers[id];} remove(ref(db,'events/'+appState.currentEvent+'/pois/'+id)); toast('POI removed'); };
 
-// ADMIN
-window.loginAdmin = ()=>{
-  const p=document.getElementById('admin-pin-input').value;
+window.loginAdmin = function() {
+  var p=document.getElementById('admin-pin-input').value;
   if (p===appState.adminPin) { document.getElementById('admin-err').style.display='none'; document.getElementById('admin-pin-input').value=''; saveSession({role:'admin',currentEvent:appState.currentEvent}); show('s-admin'); }
   else { document.getElementById('admin-err').style.display='block'; }
 };
-window.logoutAdmin = ()=>{ clearSession(); show('s-welcome'); };
-window.saveSettings = ()=>{
-  const s={interval:parseInt(document.getElementById('set-interval').value),testInterval:parseInt(document.getElementById('set-test-interval').value),mode:document.getElementById('set-mode').value,rescueNum:document.getElementById('set-rescue-num').value.trim(),rescueDist:parseInt(document.getElementById('set-rescue-dist').value)};
+window.logoutAdmin = function(){ clearSession(); show('s-welcome'); };
+window.saveSettings = function() {
+  var s={interval:parseInt(document.getElementById('set-interval').value),testInterval:parseInt(document.getElementById('set-test-interval').value),mode:document.getElementById('set-mode').value,rescueNum:document.getElementById('set-rescue-num').value.trim(),rescueDist:parseInt(document.getElementById('set-rescue-dist').value)};
   appState.settings=s; update(ref(db,'config/settings'),s); applySettings(); toast('Settings saved!');
 };
-window.changeAdminPin = ()=>{
-  const np=document.getElementById('new-admin-pin').value, cp=document.getElementById('confirm-admin-pin').value;
+window.changeAdminPin = function() {
+  var np=document.getElementById('new-admin-pin').value, cp=document.getElementById('confirm-admin-pin').value;
   if (!np){toast('Enter a PIN');return;} if (np!==cp){toast('PINs do not match');return;}
   appState.adminPin=np; set(ref(db,'config/adminPin'),np);
   document.getElementById('new-admin-pin').value=''; document.getElementById('confirm-admin-pin').value='';
   toast('Admin PIN updated!');
 };
-window.saveActiveEvent = ()=>{
-  const id=document.getElementById('set-active-event').value;
+window.saveActiveEvent = function() {
+  var id=document.getElementById('set-active-event').value;
   if (!id){toast('Select an event');return;}
   set(ref(db,'config/activeEvent'),id); appState.currentEvent=id;
-  get(ref(db,'config/trips/'+id)).then(snap=>{
-    const name=snap.val()?snap.val().name:id;
+  get(ref(db,'config/trips/'+id)).then(function(snap){
+    var name=snap.val()?snap.val().name:id;
     document.getElementById('active-event-label').textContent=name;
     document.getElementById('active-event-name').textContent=name;
-    try { localStorage.setItem('bt_active_event_name',name); localStorage.setItem('bt_active_event_id',id); } catch(e){}
+    try { localStorage.setItem('bt_event_name',name); localStorage.setItem('bt_event_id',id); } catch(e){}
     loadBoatsForParticipant(id);
   });
   toast('Active event updated!');
 };
-window.addCoordinator = ()=>{
-  const id=document.getElementById('new-coord-id').value.trim().toUpperCase();
-  const name=document.getElementById('new-coord-name').value.trim();
-  const pin=document.getElementById('new-coord-pin').value;
-  const pin2=document.getElementById('new-coord-pin2').value;
+window.addCoordinator = function() {
+  var id=document.getElementById('new-coord-id').value.trim().toUpperCase();
+  var name=document.getElementById('new-coord-name').value.trim();
+  var pin=document.getElementById('new-coord-pin').value;
+  var pin2=document.getElementById('new-coord-pin2').value;
   if (!id||!pin){toast('Fill in all fields');return;} if (pin!==pin2){toast('PINs do not match');return;}
-  appState.coordinators[id]={name,pin}; set(ref(db,'config/coordinators/'+id),{name,pin});
+  appState.coordinators[id]={name:name,pin:pin}; set(ref(db,'config/coordinators/'+id),{name:name,pin:pin});
   renderAdminCoords(); populateDropdowns();
-  ['new-coord-id','new-coord-name','new-coord-pin','new-coord-pin2'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('new-coord-id').value=''; document.getElementById('new-coord-name').value=''; document.getElementById('new-coord-pin').value=''; document.getElementById('new-coord-pin2').value='';
   toast('Coordinator '+id+' added!'); show('s-admin');
 };
-window.deleteCoord = id=>{ delete appState.coordinators[id]; remove(ref(db,'config/coordinators/'+id)); renderAdminCoords(); populateDropdowns(); toast('Removed '+id); };
-window.addRescueBoat = ()=>{
-  const id=document.getElementById('new-rescue-id').value.trim().toUpperCase();
-  const name=document.getElementById('new-rescue-name').value.trim();
-  const pin=document.getElementById('new-rescue-pin').value;
-  const pin2=document.getElementById('new-rescue-pin2').value;
+window.deleteCoord = function(id){ delete appState.coordinators[id]; remove(ref(db,'config/coordinators/'+id)); renderAdminCoords(); populateDropdowns(); toast('Removed '+id); };
+window.addRescueBoat = function() {
+  var id=document.getElementById('new-rescue-id').value.trim().toUpperCase();
+  var name=document.getElementById('new-rescue-name').value.trim();
+  var pin=document.getElementById('new-rescue-pin').value;
+  var pin2=document.getElementById('new-rescue-pin2').value;
   if (!id||!pin){toast('Fill in all fields');return;} if (pin!==pin2){toast('PINs do not match');return;}
-  const idx=Object.keys(appState.rescueBoats).length;
-  const color=RESCUE_COLORS[idx%RESCUE_COLORS.length];
-  appState.rescueBoats[id]={name,pin,color}; set(ref(db,'config/rescueBoats/'+id),{name,pin,color});
+  var idx=Object.keys(appState.rescueBoats).length;
+  var color=RESCUE_COLORS[idx%RESCUE_COLORS.length];
+  appState.rescueBoats[id]={name:name,pin:pin,color:color}; set(ref(db,'config/rescueBoats/'+id),{name:name,pin:pin,color:color});
   renderAdminRescue(); populateDropdowns();
-  ['new-rescue-id','new-rescue-name','new-rescue-pin','new-rescue-pin2'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('new-rescue-id').value=''; document.getElementById('new-rescue-name').value=''; document.getElementById('new-rescue-pin').value=''; document.getElementById('new-rescue-pin2').value='';
   toast('Rescue boat '+id+' added!'); show('s-admin');
 };
-window.deleteRescue = id=>{ delete appState.rescueBoats[id]; remove(ref(db,'config/rescueBoats/'+id)); renderAdminRescue(); populateDropdowns(); toast('Removed '+id); };
-window.addTrip = async ()=>{
-  const name=document.getElementById('trip-name').value.trim();
-  const start=document.getElementById('trip-start').value.trim();
-  const end=document.getElementById('trip-end').value.trim();
-  const from=document.getElementById('trip-from').value;
-  const to=document.getElementById('trip-to').value;
-  const date=document.getElementById('trip-date').value;
+window.deleteRescue = function(id){ delete appState.rescueBoats[id]; remove(ref(db,'config/rescueBoats/'+id)); renderAdminRescue(); populateDropdowns(); toast('Removed '+id); };
+window.addTrip = async function() {
+  var name=document.getElementById('trip-name').value.trim();
+  var start=document.getElementById('trip-start').value.trim();
+  var end=document.getElementById('trip-end').value.trim();
+  var from=document.getElementById('trip-from').value;
+  var to=document.getElementById('trip-to').value;
+  var date=document.getElementById('trip-date').value;
   if (!name||!start||!end){toast('Fill in trip name and locations');return;}
-  const id=name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
-  await set(ref(db,'config/trips/'+id),{name,start,end,from,to,date});
-  const snap=await get(ref(db,'config/trips'));
+  var id=name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  await set(ref(db,'config/trips/'+id),{name:name,start:start,end:end,from:from,to:to,date:date});
+  var snap=await get(ref(db,'config/trips'));
   renderAdminTrips(snap.val()||{});
-  ['trip-name','trip-start','trip-end','trip-from','trip-to','trip-date'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('trip-name').value=''; document.getElementById('trip-start').value=''; document.getElementById('trip-end').value=''; document.getElementById('trip-from').value=''; document.getElementById('trip-to').value=''; document.getElementById('trip-date').value='';
   toast('Trip saved!'); show('s-admin');
 };
-window.deleteTrip = async id=>{
-  if (id===appState.currentEvent){toast('Cannot delete the active event — change active event first');return;}
+window.deleteTrip = async function(id) {
+  if (id===appState.currentEvent){toast('Cannot delete the active event - change active event first');return;}
   await remove(ref(db,'config/trips/'+id));
-  const snap=await get(ref(db,'config/trips'));
+  var snap=await get(ref(db,'config/trips'));
   renderAdminTrips(snap.val()||{});
   toast('Trip deleted');
 };
