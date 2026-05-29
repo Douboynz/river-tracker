@@ -15,13 +15,13 @@
 }
 body{font-family:var(--font);background:#000;min-height:100vh;display:flex;justify-content:center;}
 #app{width:100%;max-width:420px;min-height:100vh;background:var(--surface);display:flex;flex-direction:column;}
-.screen{display:none;flex-direction:column;flex:1;min-height:100vh;}
+.screen{display:none;flex-direction:column;flex:1;min-height:100vh;max-height:100vh;overflow:hidden;}
 .screen.active{display:flex;}
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:400;}
 .topbar h2{font-size:16px;font-weight:600;flex:1;color:var(--text);}
 .back-btn{background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;font-size:20px;}
 .logout-btn{background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);padding:4px 8px;}
-.content{flex:1;padding:16px;overflow-y:auto;}
+.content{flex:1;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;}
 .card-blue{background:var(--blue-light);border-color:#b5d4f4;}
 .card-red{background:var(--red-light);border-color:#f7c1c1;}
@@ -166,10 +166,10 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
     <span class="badge badge-green" style="margin-right:4px;">Live</span>
     <button class="logout-btn" onclick="logoutParticipant()">Not you?</button>
   </div>
-  <div style="display:flex;flex-direction:column;flex:1;min-height:0;">
+  <div style="display:flex;flex-direction:column;flex:1;min-height:0;height:calc(100vh - 48px);max-height:calc(100vh - 48px);">
     <!-- MAP -->
-    <div style="flex:1;position:relative;min-height:0;">
-      <div id="p-main-map" style="width:100%;height:100%;"></div>
+    <div style="flex:1;position:relative;min-height:0;max-height:calc(100vh - 180px);">
+      <div id="p-main-map" style="width:100%;height:100%;min-height:200px;"></div>
       <div class="map-toggle" style="top:10px;right:10px;">
         <button id="p-map-street" class="active" onclick="togglePMainMap('street')">Street</button>
         <button id="p-map-sat" onclick="togglePMainMap('sat')">Satellite</button>
@@ -241,9 +241,9 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
     <span class="badge badge-green" style="margin-right:4px;">Live</span>
     <button class="logout-btn" onclick="logoutRescue()">Sign out</button>
   </div>
-  <div style="display:flex;flex-direction:column;flex:1;min-height:0;">
-    <div style="flex:1;position:relative;min-height:0;">
-      <div id="rescue-nav-map" style="width:100%;height:100%;"></div>
+  <div style="display:flex;flex-direction:column;flex:1;min-height:0;height:100vh;max-height:100vh;">
+    <div style="flex:1;position:relative;min-height:0;max-height:calc(100vh - 180px);">
+      <div id="rescue-nav-map" style="width:100%;height:100%;min-height:200px;"></div>
       <div class="map-toggle" style="top:10px;right:10px;">
         <button id="rescue-map-street" class="active" onclick="toggleRescueMap('street')">Street</button>
         <button id="rescue-map-sat" onclick="toggleRescueMap('sat')">Satellite</button>
@@ -364,7 +364,7 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
 <!-- COORD ADD POI -->
 <div class="screen" id="s-coord-addpoi">
   <div class="topbar"><button class="back-btn" onclick="show('s-coord')">&#x2190;</button><h2>Add point of interest</h2></div>
-  <div class="content">
+  <div class="content" style="overflow-y:auto;">
     <div class="card">
       <div class="lbl">Name</div><input type="text" id="poi-name" placeholder="e.g. Side outlet - turn here"/>
       <div class="lbl">Type</div>
@@ -376,7 +376,7 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
     <div class="sec">Pin location</div>
     <div class="card card-blue" style="font-size:13px;color:#0c447c;margin-bottom:8px;">Tap the map to drop a pin, or use the buttons below.</div>
     <div style="position:relative;border-radius:var(--radius);overflow:hidden;margin-bottom:10px;">
-      <div id="poi-pick-map" style="height:220px;width:100%;"></div>
+      <div id="poi-pick-map" style="height:200px;width:100%;"></div>
       <div class="map-toggle" style="top:8px;right:8px;"><button id="poi-map-street" class="active" onclick="togglePoiMap('street')">Street</button><button id="poi-map-sat" onclick="togglePoiMap('sat')">Satellite</button></div>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:10px;">
@@ -606,7 +606,10 @@ window.show = function(id) {
   if (id==='s-coord') setTimeout(function(){ if(coordMap) coordMap.invalidateSize(); },100);
   if (id==='s-participant') setTimeout(function(){ if(pMainMap) pMainMap.invalidateSize(); },200);
   if (id==='s-rescue') setTimeout(function(){ if(rescueNavMap) rescueNavMap.invalidateSize(); },200);
-  if (id==='s-coord-addpoi') setTimeout(function(){ initPoiPickMap(); },100);
+  if (id==='s-coord-addpoi') setTimeout(function(){
+    initPoiPickMap();
+    setTimeout(function(){ if(poiPickMap){ poiPickMap.invalidateSize(); } },300);
+  },100);
 };
 window.openStaffMenu = function() { document.getElementById('staff-overlay').style.display='flex'; };
 window.closeStaffMenu = function() { document.getElementById('staff-overlay').style.display='none'; };
@@ -685,8 +688,13 @@ window.togglePMainMap=function(m){ if(!pMainMap)return; if(m==='street'){pMainMa
 window.pMainMapLocate=function(){ if(!pMainMap)return; navigator.geolocation.getCurrentPosition(function(p){ pMainMap.setView([p.coords.latitude,p.coords.longitude],15); }); };
 
 function initPoiPickMap() {
-  var center=lastCLat?[lastCLat,lastCLng]:DEFAULT_CENTER;
-  if (poiPickMap) { setTimeout(function(){ poiPickMap.invalidateSize(); },100); return; }
+  var center=lastCLat?[lastCLat,lastCLng]:(lastLat?[lastLat,lastLng]:DEFAULT_CENTER);
+  if (poiPickMap) {
+    setTimeout(function(){ poiPickMap.invalidateSize(); },200);
+    // re-centre on GPS each time screen opens
+    navigator.geolocation.getCurrentPosition(function(p){ poiPickMap.setView([p.coords.latitude,p.coords.longitude],15); },function(){},{enableHighAccuracy:true,timeout:5000});
+    return;
+  }
   poiPickMap=L.map('poi-pick-map',{zoomControl:true}).setView(center,14);
   poiPickStreetLayer=L.tileLayer(TILES.street,{attribution:ATTR_STREET,maxZoom:19}).addTo(poiPickMap);
   poiPickSatLayer=L.tileLayer(TILES.sat,{attribution:ATTR_SAT,maxZoom:19});
