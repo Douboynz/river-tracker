@@ -362,40 +362,39 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
 </div>
 
 <!-- COORD ADD POI -->
-<div class="screen" id="s-coord-addpoi" style="overflow:visible;max-height:none;">
+<div class="screen" id="s-coord-addpoi">
   <div class="topbar"><button class="back-btn" onclick="editingPoiId=null;show('s-coord')">&#x2190;</button><h2 id="poi-screen-title">Add point of interest</h2></div>
-  <!-- Form fields -->
-  <div style="padding:12px 16px 8px;flex-shrink:0;">
-    <div class="card" style="margin-bottom:8px;">
-      <div class="lbl">Name</div><input type="text" id="poi-name" placeholder="e.g. Side outlet - turn here"/>
+  <div style="overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;">
+    <div style="padding:12px 16px 8px;">
+      <div class="lbl" style="margin-top:0;">Name</div>
+      <input type="text" id="poi-name" placeholder="e.g. Side outlet - turn here"/>
       <div class="lbl">Type</div>
       <select id="poi-type">
         <option value="nav">Navigation marker</option><option value="ramp">Boat ramp</option>
         <option value="hazard">Hazard</option><option value="checkpoint">Checkpoint</option><option value="other">Other</option>
       </select>
     </div>
-    <div style="font-size:12px;color:#0c447c;background:var(--blue-light);border-radius:var(--radius-sm);padding:8px 12px;margin-bottom:8px;">
-      &#x1F4CD; Tap the map to drop a pin, or tap "My location"
+    <div style="padding:0 16px 6px;font-size:12px;color:#0c447c;background:var(--blue-light);margin:0 0 0 0;padding:8px 16px;">
+      &#x1F4CD; Tap the map to drop a pin, or use My location button
     </div>
-  </div>
-  <!-- MAP — rendered outside overflow:hidden containers -->
-  <div style="position:relative;flex-shrink:0;height:240px;width:100%;">
-    <div id="poi-pick-map" style="position:absolute;top:0;left:0;right:0;bottom:0;z-index:1;"></div>
-    <div class="map-toggle" style="top:8px;right:8px;z-index:500;">
-      <button id="poi-map-street" class="active" onclick="togglePoiMap('street')">Street</button>
-      <button id="poi-map-sat" onclick="togglePoiMap('sat')">Satellite</button>
+    <!-- MAP with explicit pixel height — critical for Leaflet -->
+    <div style="position:relative;width:100%;height:250px;">
+      <div id="poi-pick-map" style="width:100%;height:250px;"></div>
+      <div style="position:absolute;top:8px;right:8px;z-index:1000;display:flex;border-radius:6px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.2);">
+        <button id="poi-map-street" onclick="togglePoiMap('street')" style="padding:5px 10px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:var(--blue);color:#fff;">Street</button>
+        <button id="poi-map-sat" onclick="togglePoiMap('sat')" style="padding:5px 10px;font-size:11px;font-weight:600;border:none;cursor:pointer;background:#fff;color:var(--text);">Satellite</button>
+      </div>
     </div>
-  </div>
-  <!-- Controls below map -->
-  <div style="padding:10px 16px;flex-shrink:0;">
-    <div style="display:flex;gap:8px;margin-bottom:8px;">
-      <button class="btn" style="flex:1;margin:0;padding:10px;" onclick="useMyLocationPOI()">&#x1F4CD; My location</button>
-      <button class="btn" style="flex:1;margin:0;padding:10px;" onclick="clearPoiPin()">&#x2715; Clear pin</button>
+    <div style="padding:10px 16px 20px;">
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <button class="btn" style="flex:1;margin:0;padding:10px;" onclick="useMyLocationPOI()">&#x1F4CD; My location</button>
+        <button class="btn" style="flex:1;margin:0;padding:10px;" onclick="clearPoiPin()">&#x2715; Clear pin</button>
+      </div>
+      <div id="poi-coords-display" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:10px;">No pin placed yet - tap the map</div>
+      <input type="hidden" id="poi-lat"/>
+      <input type="hidden" id="poi-lng"/>
+      <button class="btn btn-primary" onclick="savePOI()">Save POI</button>
     </div>
-    <div id="poi-coords-display" style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:10px;">No pin placed yet - tap the map</div>
-    <input type="hidden" id="poi-lat"/>
-    <input type="hidden" id="poi-lng"/>
-    <button class="btn btn-primary" onclick="savePOI()">Save POI</button>
   </div>
 </div>
 
@@ -616,12 +615,8 @@ window.show = function(id) {
   if (id==='s-participant') setTimeout(function(){ if(pMainMap) pMainMap.invalidateSize(); },200);
   if (id==='s-rescue') setTimeout(function(){ if(rescueNavMap) rescueNavMap.invalidateSize(); },200);
   if (id==='s-coord-addpoi') {
-    // destroy and recreate map each time so it always renders correctly
-    if (poiPickMap) {
-      poiPickMap.remove();
-      poiPickMap=null; poiPickStreetLayer=null; poiPickSatLayer=null; poiPickMarker=null;
-    }
-    setTimeout(function(){ initPoiPickMap(); },250);
+    // always recreate map fresh — initPoiPickMap handles destroy+recreate
+    setTimeout(function(){ initPoiPickMap(); },300);
   }
 };
 window.openStaffMenu = function() { document.getElementById('staff-overlay').style.display='flex'; };
@@ -702,36 +697,38 @@ window.pMainMapLocate=function(){ if(!pMainMap)return; navigator.geolocation.get
 
 function initPoiPickMap() {
   var center=lastCLat?[lastCLat,lastCLng]:(lastLat?[lastLat,lastLng]:DEFAULT_CENTER);
+  var el=document.getElementById('poi-pick-map');
+  if (!el) return;
+
+  // destroy old instance if exists
   if (poiPickMap) {
-    // already initialised — just resize and re-centre
-    setTimeout(function(){
-      poiPickMap.invalidateSize();
-      navigator.geolocation.getCurrentPosition(
-        function(p){ poiPickMap.setView([p.coords.latitude,p.coords.longitude],15); },
-        function(){},
-        {enableHighAccuracy:true,timeout:5000}
-      );
-    },150);
-    return;
+    try { poiPickMap.remove(); } catch(e){}
+    poiPickMap=null; poiPickStreetLayer=null; poiPickSatLayer=null; poiPickMarker=null;
   }
-  // small delay to ensure the div is visible and has dimensions before Leaflet touches it
+
+  // explicitly set pixel dimensions so Leaflet can measure the container
+  el.style.width='100%';
+  el.style.height='250px';
+  el.style.display='block';
+
+  // init Leaflet
+  poiPickMap=L.map(el,{zoomControl:true,preferCanvas:true}).setView(center,13);
+  poiPickStreetLayer=L.tileLayer(TILES.street,{attribution:ATTR_STREET,maxZoom:19}).addTo(poiPickMap);
+  poiPickSatLayer=L.tileLayer(TILES.sat,{attribution:ATTR_SAT,maxZoom:19});
+  poiPickMap.on('click',function(e){ setPoiPin(e.latlng.lat,e.latlng.lng); });
+
+  // invalidate after short delay so tiles render
   setTimeout(function(){
-    var el=document.getElementById('poi-pick-map');
-    if (!el) return;
-    poiPickMap=L.map(el,{zoomControl:true}).setView(center,13);
-    poiPickStreetLayer=L.tileLayer(TILES.street,{attribution:ATTR_STREET,maxZoom:19}).addTo(poiPickMap);
-    poiPickSatLayer=L.tileLayer(TILES.sat,{attribution:ATTR_SAT,maxZoom:19});
-    poiPickMap.on('click',function(e){ setPoiPin(e.latlng.lat,e.latlng.lng); });
-    // force size recalculation after tiles start loading
-    setTimeout(function(){
-      poiPickMap.invalidateSize();
+    if (poiPickMap) {
+      poiPickMap.invalidateSize(true);
+      // centre on GPS
       navigator.geolocation.getCurrentPosition(
-        function(p){ poiPickMap.setView([p.coords.latitude,p.coords.longitude],15); },
+        function(p){ if(poiPickMap) poiPickMap.setView([p.coords.latitude,p.coords.longitude],14); },
         function(){},
         {enableHighAccuracy:true,timeout:6000}
       );
-    },300);
-  },200);
+    }
+  },400);
 }
 function setPoiPin(lat,lng) {
   document.getElementById('poi-lat').value=lat.toFixed(6);
