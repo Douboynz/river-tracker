@@ -339,7 +339,7 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
     <div class="content">
       <div class="sec">Points of interest</div>
       <div id="poi-list-coord" class="card" style="padding:8px 12px;"><div style="text-align:center;padding:12px;color:var(--muted);">No POIs added</div></div>
-      <button class="btn btn-primary" onclick="show('s-coord-addpoi')" style="margin-top:4px;">+ Add POI</button>
+      <button class="btn btn-primary" onclick="openAddPOI()" style="margin-top:4px;">+ Add POI</button>
     </div>
     <div class="tab-bar">
       <button class="tab" onclick="coordTab('map',this)"><span class="tab-icon">&#x1F5FA;</span>Map</button>
@@ -363,7 +363,7 @@ input:focus,select:focus{outline:none;border-color:var(--blue);}
 
 <!-- COORD ADD POI -->
 <div class="screen" id="s-coord-addpoi">
-  <div class="topbar"><button class="back-btn" onclick="show('s-coord')">&#x2190;</button><h2>Add point of interest</h2></div>
+  <div class="topbar"><button class="back-btn" onclick="editingPoiId=null;show('s-coord')">&#x2190;</button><h2 id="poi-screen-title">Add point of interest</h2></div>
   <div class="content" style="overflow-y:auto;">
     <div class="card">
       <div class="lbl">Name</div><input type="text" id="poi-name" placeholder="e.g. Side outlet - turn here"/>
@@ -828,8 +828,11 @@ function restoreSession(session) {
     appState.role='participant'; appState.boatId=session.boatId;
     document.getElementById('p-label').textContent='Boat '+session.boatId;
     show('s-participant');
-    setTimeout(function(){ initPMainMap(); setTimeout(function(){ if(pMainMap) pMainMap.invalidateSize(); },200); },100);
-    startParticipantTracking(session.boatId); return true;
+    setTimeout(function(){
+      initPMainMap();
+      setTimeout(function(){ if(pMainMap) { pMainMap.invalidateSize(); } startParticipantTracking(session.boatId); },400);
+    },100);
+    return true;
   }
   if (session.role==='coordinator'&&session.coordId) {
     var pool=session.isRescueCoord?(appState.rescueCoordinators||{}):(appState.coordinators||{});
@@ -865,8 +868,10 @@ window.joinParticipant=function(){
     document.getElementById('p-err').style.display='none';
     saveSession({role:'participant',boatId:boat,currentEvent:appState.currentEvent});
     show('s-participant');
-    setTimeout(function(){ initPMainMap(); setTimeout(function(){ if(pMainMap) pMainMap.invalidateSize(); },200); },100);
-    startParticipantTracking(boat);
+    setTimeout(function(){
+      initPMainMap();
+      setTimeout(function(){ if(pMainMap) { pMainMap.invalidateSize(); } startParticipantTracking(boat); },400);
+    },100);
   } else { document.getElementById('p-err').style.display='block'; }
 };
 window.logoutParticipant=function(){
@@ -903,18 +908,24 @@ function startParticipantTracking(boatId) {
   if (pLabelInterval) clearInterval(pLabelInterval);
   pLabelInterval=setInterval(function(){ updateLabel('p-coords',lastPushTs); },15000);
 
-  // POIs on participant map
-  fbOnValue(fbRef(db,'events/'+appState.currentEvent+'/pois'),function(snap){
-    var pois=snap.val()||{};
-    if (!pMainMap) return;
-    Object.entries(pois).forEach(function(e){
-      if (!e[1].lat) return;
-      var icon=makePoiIcon(e[1].type||'other',POI_COLORS[e[1].type]||'#888');
-      if (!pMainPoiMarkers[e[0]]) pMainPoiMarkers[e[0]]=L.marker([e[1].lat,e[1].lng],{icon:icon}).bindPopup('<b>'+e[1].name+'</b>').addTo(pMainMap);
-      else pMainPoiMarkers[e[0]].setLatLng([e[1].lat,e[1].lng]);
+  // POIs on participant map — retry until map is ready
+  function loadPOIsOnPMap() {
+    fbOnValue(fbRef(db,'events/'+appState.currentEvent+'/pois'),function(snap){
+      var pois=snap.val()||{};
+      function applyPOIs() {
+        if (!pMainMap) { setTimeout(applyPOIs, 500); return; }
+        Object.entries(pois).forEach(function(e){
+          if (!e[1].lat) return;
+          var icon=makePoiIcon(e[1].type||'other',POI_COLORS[e[1].type]||'#888');
+          if (!pMainPoiMarkers[e[0]]) pMainPoiMarkers[e[0]]=L.marker([e[1].lat,e[1].lng],{icon:icon}).bindPopup('<b>'+e[1].name+'</b>').addTo(pMainMap);
+          else pMainPoiMarkers[e[0]].setLatLng([e[1].lat,e[1].lng]);
+        });
+        Object.keys(pMainPoiMarkers).forEach(function(id){ if(!pois[id]&&pMainMap){pMainMap.removeLayer(pMainPoiMarkers[id]);delete pMainPoiMarkers[id];} });
+      }
+      applyPOIs();
     });
-    Object.keys(pMainPoiMarkers).forEach(function(id){ if(!pois[id]&&pMainMap){pMainMap.removeLayer(pMainPoiMarkers[id]);delete pMainPoiMarkers[id];} });
-  });
+  }
+  loadPOIsOnPMap();
 
   // Listen for assigned rescue boat only
   fbOnValue(fbRef(db,'events/'+appState.currentEvent+'/boats/'+boatId),function(snap){
@@ -1001,24 +1012,26 @@ function startRescueTracking(id,color) {
 function listenSOSForRescue() {
   fbOnValue(fbRef(db,'events/'+appState.currentEvent+'/boats'),function(snap){
     var boats=snap.val()||{}; appState.boats=boats;
-    var sosList=Object.entries(boats).filter(function(e){ return e[1].sos; });
+    // only show SOS alerts assigned to this rescue boat
+    var sosList=Object.entries(boats).filter(function(e){ return e[1].sos && e[1].rescueId===appState.rescueId; });
     var el=document.getElementById('rescue-sos-list');
-    if (!sosList.length) { el.innerHTML='<div class="card card-gray" style="text-align:center;color:var(--muted);font-size:14px;padding:16px;">No active SOS alerts</div>'; return; }
+    if (!sosList.length) { el.innerHTML='<div class="card card-gray" style="text-align:center;color:var(--muted);font-size:14px;padding:16px;">No SOS assigned to you</div>'; return; }
     el.innerHTML=sosList.map(function(e){
       var bid=e[0]; var b=e[1];
       return '<div class="card card-red" style="margin-bottom:8px;">'
         +'<div style="font-weight:700;font-size:14px;color:var(--red);margin-bottom:4px;">&#x1F198; Boat '+bid+(b.name?' -- '+b.name:'')+'</div>'
         +'<div style="font-size:12px;color:#791f1f;margin-bottom:8px;">Last seen: '+timeAgo(b.ts)+'<br>'+(b.lat?b.lat.toFixed(4)+' S, '+Math.abs(b.lng).toFixed(4)+' E':'Location unknown')+'</div>'
-        +'<button class="btn btn-sm btn-primary" style="width:100%;" data-bid="'+bid+'" data-lat="'+(b.lat||0)+'" data-lng="'+(b.lng||0)+'" onclick="acknowledgeRescue(this.dataset.bid,parseFloat(this.dataset.lat),parseFloat(this.dataset.lng))">Responding -- Navigate to boat</button>'
+        +'<button class="btn btn-sm btn-primary" style="width:100%;" data-bid="'+bid+'" data-lat="'+(b.lat||0)+'" data-lng="'+(b.lng||0)+'" onclick="navToSOS(this.dataset.bid,parseFloat(this.dataset.lat),parseFloat(this.dataset.lng))">Navigate to Boat '+bid+'</button>'
         +'</div>';
     }).join('');
+    // auto-navigate if only one assigned SOS
+    if (sosList.length===1) {
+      var b=sosList[0][1];
+      if (b.lat) navToSOS(sosList[0][0],b.lat,b.lng);
+    }
   });
 }
-window.acknowledgeRescue=function(bid,lat,lng){
-  fbUpdate(fbRef(db,'events/'+appState.currentEvent+'/boats/'+bid),{sosAck:true,rescueId:appState.rescueId});
-  toast('Responding to Boat '+bid);
-  navToSOS(bid,lat||0,lng||0);
-};
+// acknowledgeRescue no longer used - assignment done by rescue coordinator
 window.navToSOS=function(bid,lat,lng){
   if (!rescueNavMap) { initRescueNavMap(); }
   setTimeout(function(){
@@ -1120,14 +1133,32 @@ function renderCoordBoatList(boats) {
   var sosEntries=entries.filter(function(e){return e[1].sos;});
   document.getElementById('coord-sos-alerts').innerHTML=sosEntries.map(function(e){
     var bid=e[0]; var b=e[1];
-    var clearBtn=appState.isRescueCoord
-      ?'<button class="btn btn-sm" style="color:var(--blue);border-color:var(--blue);" data-bid="'+bid+'" onclick="clearSOS(this.dataset.bid)">Clear SOS</button>'
-      :'<span style="font-size:11px;color:var(--muted);">Contact rescue coordinator</span>';
-    return '<div class="card card-red" style="margin-bottom:8px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot dot-sos"></span><div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--red);">Boat '+bid+(b.name?' -- '+b.name:'')+' -- SOS</div><div style="font-size:11px;color:#791f1f;">'+timeAgo(b.ts)+' -- '+(b.rescueId?'Rescue '+b.rescueId+' responding':'Unassigned')+'</div></div>'+clearBtn+'</div></div>';
+    if (appState.isRescueCoord) {
+      // build rescue boat options
+      var rbOptions=Object.keys(appState.rescueBoats).map(function(rid){
+        return '<option value="'+rid+'"'+(b.rescueId===rid?' selected':'')+'>'+rid+'</option>';
+      }).join('');
+      var assignSection='<div style="margin-top:8px;display:flex;gap:6px;align-items:center;">'
+        +'<select style="flex:1;margin:0;padding:6px 8px;font-size:13px;" data-bid="'+bid+'" onchange="assignRescueBoat(this.dataset.bid,this.value)">'
+        +'<option value="">-- Assign rescue boat --</option>'+rbOptions+'</select>'
+        +'<button class="btn btn-sm" style="color:var(--red);border-color:var(--red);" data-bid="'+bid+'" onclick="clearSOS(this.dataset.bid)">Clear</button>'
+        +'</div>';
+      return '<div class="card card-red" style="margin-bottom:8px;">'
+        +'<div style="font-weight:700;font-size:13px;color:var(--red);margin-bottom:2px;">&#x1F198; Boat '+bid+(b.name?' -- '+b.name:'')+'</div>'
+        +'<div style="font-size:11px;color:#791f1f;margin-bottom:4px;">'+timeAgo(b.ts)+' -- '+(b.rescueId?'<b>Rescue '+b.rescueId+' assigned</b>':'Unassigned')+'</div>'
+        +assignSection+'</div>';
+    } else {
+      return '<div class="card card-red" style="margin-bottom:8px;"><div style="display:flex;align-items:center;gap:8px;"><span class="dot dot-sos"></span><div style="flex:1;"><div style="font-size:13px;font-weight:700;color:var(--red);">Boat '+bid+(b.name?' -- '+b.name:'')+' -- SOS</div><div style="font-size:11px;color:#791f1f;">'+timeAgo(b.ts)+' -- '+(b.rescueId?'Rescue '+b.rescueId+' assigned':'Unassigned')+'</div></div><span style="font-size:11px;color:var(--muted);">Contact rescue coordinator</span></div></div>';
+    }
   }).join('');
 }
 window.focusBoat=function(bid,lat,lng){ if(!coordMap||!lat)return; coordTab('map'); coordMap.setView([lat,lng],16); if(coordBoatMarkers[bid]) coordBoatMarkers[bid].openPopup(); };
 window.clearSOS=function(bid){ fbUpdate(fbRef(db,'events/'+appState.currentEvent+'/boats/'+bid),{sos:false,sosAck:false,rescueId:null}); toast('SOS cleared for Boat '+bid); };
+window.assignRescueBoat=function(bid,rescueId){
+  if (!rescueId) return;
+  fbUpdate(fbRef(db,'events/'+appState.currentEvent+'/boats/'+bid),{rescueId:rescueId,sosAck:true});
+  toast('Boat '+bid+' assigned to Rescue '+rescueId);
+};
 window.removeBoat=function(bid){
   if (!confirm('Remove Boat '+bid+' completely? This will delete all their data.')) return;
   fbRemove(fbRef(db,'events/'+appState.currentEvent+'/boats/'+bid));
@@ -1182,7 +1213,7 @@ function loadPOIs() {
     }
     var el=document.getElementById('poi-list-coord');
     var entries=Object.entries(pois);
-    el.innerHTML=entries.length?entries.map(function(e){ return '<div class="row"><span>'+POI_EMOJI[e[1].type||'other']+'</span><span style="flex:1;font-size:13px;">'+e[1].name+'</span><button class="btn btn-sm" data-pid="'+e[0]+'" onclick="deletePOI(this.dataset.pid)">Remove</button></div>'; }).join(''):'<div style="text-align:center;padding:12px;color:var(--muted);">No POIs added</div>';
+    el.innerHTML=entries.length?entries.map(function(e){ return '<div class="row"><span>'+POI_EMOJI[e[1].type||'other']+'</span><span style="flex:1;font-size:13px;">'+e[1].name+'</span><button class="btn btn-sm" style="margin-right:4px;" data-pid="'+e[0]+'" data-pname="'+e[1].name.replace(/"/g,'&quot;')+'" data-ptype="'+(e[1].type||'nav')+'" data-plat="'+(e[1].lat||'')+'" data-plng="'+(e[1].lng||'')+'" onclick="editPOI(this.dataset.pid,this.dataset.pname,this.dataset.ptype,this.dataset.plat,this.dataset.plng)">Edit</button><button class="btn btn-sm" style="color:var(--red);border-color:var(--red);" data-pid="'+e[0]+'" onclick="deletePOI(this.dataset.pid)">Remove</button></div>'; }).join(''):'<div style="text-align:center;padding:12px;color:var(--muted);">No POIs added</div>';
   });
 }
 window.coordTab=function(tab){ ['map','boats','rescue','poi'].forEach(function(t){var el=document.getElementById('c-'+t+'-tab');if(el)el.style.display=t===tab?'flex':'none';}); if(tab==='map'&&coordMap) setTimeout(function(){coordMap.invalidateSize();},100); };
@@ -1202,6 +1233,7 @@ window.registerBoat=async function(){
   ['new-boat-num','new-boat-name','new-boat-phone'].forEach(function(id){document.getElementById(id).value='';});
   show('s-coord'); coordTab('boats');
 };
+window.openAddPOI=function(){ editingPoiId=null; document.getElementById('poi-screen-title').textContent='Add point of interest'; document.getElementById('poi-name').value=''; document.getElementById('poi-lat').value=''; document.getElementById('poi-lng').value=''; document.getElementById('poi-coords-display').textContent='No pin placed yet - tap the map'; if(poiPickMarker&&poiPickMap){poiPickMap.removeLayer(poiPickMarker);poiPickMarker=null;} show('s-coord-addpoi'); };
 window.savePOI=function(){
   var name=document.getElementById('poi-name').value.trim();
   var type=document.getElementById('poi-type').value;
@@ -1209,17 +1241,49 @@ window.savePOI=function(){
   var lng=parseFloat(document.getElementById('poi-lng').value)||null;
   if (!name){toast('Enter a POI name');return;}
   if (!lat||!lng){toast('Place a pin on the map first');return;}
-  var nr=fbPush(fbRef(db,'events/'+appState.currentEvent+'/pois'));
-  fbSet(nr,{name:name,type:type,lat:lat,lng:lng,ts:Date.now()});
-  toast('POI saved!');
+  var data={name:name,type:type,lat:lat,lng:lng,ts:Date.now()};
+  if (editingPoiId) {
+    fbSet(fbRef(db,'events/'+appState.currentEvent+'/pois/'+editingPoiId),data);
+    toast('POI updated!'); editingPoiId=null;
+  } else {
+    var nr=fbPush(fbRef(db,'events/'+appState.currentEvent+'/pois'));
+    fbSet(nr,data); toast('POI saved!');
+  }
   document.getElementById('poi-name').value='';
   document.getElementById('poi-lat').value='';
   document.getElementById('poi-lng').value='';
   document.getElementById('poi-coords-display').textContent='No pin placed yet - tap the map';
-  if (poiPickMarker){poiPickMap.removeLayer(poiPickMarker);poiPickMarker=null;}
+  if (poiPickMarker&&poiPickMap){poiPickMap.removeLayer(poiPickMarker);poiPickMarker=null;}
   show('s-coord');
 };
 window.deletePOI=function(id){ if(coordPoiMarkers[id]&&coordMap){coordMap.removeLayer(coordPoiMarkers[id]);delete coordPoiMarkers[id];} fbRemove(fbRef(db,'events/'+appState.currentEvent+'/pois/'+id)); toast('POI removed'); };
+var editingPoiId=null;
+window.editPOI=function(id,name,type,lat,lng){
+  editingPoiId=id;
+  document.getElementById('poi-screen-title').textContent='Edit point of interest';
+  document.getElementById('poi-name').value=name||'';
+  document.getElementById('poi-type').value=type||'nav';
+  document.getElementById('poi-lat').value=lat||'';
+  document.getElementById('poi-lng').value=lng||'';
+  if (lat&&lng) {
+    document.getElementById('poi-coords-display').textContent=parseFloat(lat).toFixed(5)+', '+parseFloat(lng).toFixed(5);
+  }
+  show('s-coord-addpoi');
+  setTimeout(function(){
+    initPoiPickMap();
+    setTimeout(function(){
+      if (poiPickMap) {
+        poiPickMap.invalidateSize();
+        if (lat&&lng) {
+          var latlng=[parseFloat(lat),parseFloat(lng)];
+          if (poiPickMarker) poiPickMarker.setLatLng(latlng);
+          else { poiPickMarker=L.marker(latlng,{draggable:true}).addTo(poiPickMap); poiPickMarker.on('dragend',function(e){ var ll=e.target.getLatLng(); setPoiPin(ll.lat,ll.lng); }); }
+          poiPickMap.setView(latlng,15);
+        }
+      }
+    },300);
+  },150);
+};
 
 // ── ADMIN ──
 window.loginAdmin=function(){ var p=document.getElementById('admin-pin-input').value; if(p===appState.adminPin){document.getElementById('admin-err').style.display='none';document.getElementById('admin-pin-input').value='';saveSession({role:'admin',currentEvent:appState.currentEvent});show('s-admin');}else{document.getElementById('admin-err').style.display='block';} };
